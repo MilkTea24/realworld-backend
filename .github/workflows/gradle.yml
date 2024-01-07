@@ -34,10 +34,9 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: build
-    - name: Test Coverage Report
-      id: jacoco
-      uses: Test Coverage Report
+    - name: Upload Jacoco Report
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
       with:
-        title: Test Coverage Report
-        path: $${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
+        name: jacoco-report
+        path: build/reports/jacoco/test/html
