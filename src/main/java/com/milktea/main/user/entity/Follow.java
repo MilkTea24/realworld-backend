@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "follow_id")
+@Table(name = "follow_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow {
     @Id

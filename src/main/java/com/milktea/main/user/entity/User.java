@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_id")
+@Getter
+@Table(name = "user_tb")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends TimestampEntity {
     private static final String DEFAULT_BIO = "Default Bio";
