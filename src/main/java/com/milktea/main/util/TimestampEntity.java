@@ -1,4 +1,4 @@
-package com.milktea.util;
+package com.milktea.main.util;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

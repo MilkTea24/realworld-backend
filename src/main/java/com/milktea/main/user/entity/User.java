@@ -1,6 +1,6 @@
 package com.milktea.main.user.entity;
 
-import com.milktea.util.TimestampEntity;
+import com.milktea.main.util.TimestampEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
