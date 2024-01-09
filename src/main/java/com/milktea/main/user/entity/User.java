@@ -1,14 +1,14 @@
 package com.milktea.main.user.entity;
 
 import com.milktea.main.util.TimestampEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -31,6 +31,9 @@ public class User extends TimestampEntity {
     private String image;
 
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private final List<Authority> authorities = new ArrayList<>();
 
     @Builder
     public User(String email, String username, String bio, String image, String password) {

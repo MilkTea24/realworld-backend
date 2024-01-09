@@ -27,7 +27,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
     private String signingKey;
 
     //"/login"의 요청을 이 필터가 가로챈다.
-
+    //AuthenticationManager가 Authentication을 검증한다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String username = request.getHeader("username");
