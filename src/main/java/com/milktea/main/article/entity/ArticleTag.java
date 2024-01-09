@@ -1,9 +1,7 @@
 package com.milktea.main.article.entity;
 
-import com.milktea.util.TimestampEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
