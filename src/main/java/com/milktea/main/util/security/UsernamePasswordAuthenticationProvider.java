@@ -1,6 +1,7 @@
 package com.milktea.main.util.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
     //두 개의 생성자를 가진 AuthenticationToken을 반환함
@@ -30,6 +32,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         //비밀번호 맞는지 체크
         boolean checkPasswordResult = checkPassword(user, password);
+        log.debug("사용자가 전달한 비밀번호와 저장된 비밀번호의 일치 여부: " + true);
 
         //비밀번호 맞으면
         if (checkPassword(user, password)) {
