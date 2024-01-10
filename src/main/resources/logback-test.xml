@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <logger name="com.milktea.main" level="DEBUG"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>./log/testFile.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root lelvel = "INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
