@@ -1,11 +1,13 @@
 package com.milktea.main.util.security;
 
+import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 public class BoardUserDetails implements UserDetails {
     private final User user;
@@ -15,7 +17,7 @@ public class BoardUserDetails implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public List<SimpleGrantedAuthority> getAuthorities() {
         return user.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getName()))
                 .toList();
