@@ -3,11 +3,8 @@ package com.milktea.main.article.repository;
 import com.milktea.main.article.entity.Article;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @DataJpaTest
@@ -33,7 +30,6 @@ public class ArticleRepositoryTest {
 
     @Test
     @DisplayName("데이터베이스 연결 확인을 위한 article 생성 테스트")
-    @Transactional
     public void saveArticleTest() {
         //given
         //static article 사용
