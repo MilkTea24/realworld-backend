@@ -16,4 +16,14 @@ public class Authority {
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    public Authority(String name) {
+        this.name = name;
+    }
+
+    //연관관계 편의 메소드
+    public void setUser(User user) {
+        this.user = user;
+        user.getAuthorities().add(this);
+    }
 }
