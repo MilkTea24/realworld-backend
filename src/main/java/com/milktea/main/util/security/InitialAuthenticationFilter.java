@@ -42,7 +42,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
         String username = request.getHeader("username");
         String password = request.getHeader("password");
 
-        log.debug("username: " + username + ", password: " + password);
+        log.debug("username: '{}', password: '{}'", username, password);
         Authentication authentication = new UsernamePasswordAuthentication(username, password);
         Authentication returnAuthentication = manager.authenticate(authentication);
 
@@ -50,8 +50,8 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 signingKey.getBytes(StandardCharsets.UTF_8)
         );
 
-        log.debug("AuthenticationManager가 반환한 username - " + returnAuthentication.getName());
-        log.debug("AuthenticationManager가 반환한 authorities - " + returnAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).reduce((a, b) -> a + b));
+        log.debug("AuthenticationManager가 반환한 username - {}", returnAuthentication.getName());
+        log.debug("AuthenticationManager가 반환한 authorities - {}", returnAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).reduce((a, b) -> a + b));
 
         Claims claims = Jwts.claims()
                 .setIssuedAt(new Date());

@@ -57,7 +57,7 @@ public class InitialAuthenticationFilterTest {
 
         //then
         String token = response.getHeader("Authorization");
-        log.debug("token - " + token);
+        log.debug("token - {}", token);
         Assertions.assertNotNull(token);
     }
 

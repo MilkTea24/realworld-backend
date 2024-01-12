@@ -25,7 +25,7 @@ public class ArticleRepositoryTest {
                 .body("test body1")
                 .build();
 
-        log.info(article.toString());
+        log.info("article - {}", article);
     }
 
     @Test
@@ -37,7 +37,7 @@ public class ArticleRepositoryTest {
         //when
         log.info("---------------------save---------------------");
         Article saveArticle = articleRepository.save(article);
-        log.info(saveArticle.toString());
+        log.info("saveArticle - {}", saveArticle);
 
         //then
         Assertions.assertNotNull(saveArticle);
