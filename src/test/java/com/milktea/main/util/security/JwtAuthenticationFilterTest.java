@@ -50,7 +50,7 @@ public class JwtAuthenticationFilterTest {
     @DisplayName("올바른 토큰을 입력하면 인증을 받을 수 있다.")
     void correct_token_authentication_test() throws ServletException, IOException {
         //given
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(TEST_SIGNING_KEY, boardUserDetailsService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(TEST_SIGNING_KEY);
         request.addHeader("Authorization", TOKEN);
 
         //when
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilterTest {
     @DisplayName("서명이 올바르지 않은 토큰을 입력하면 SignatureException이 발생한다")
     void incorrect_token_authentication_test() throws ServletException, IOException {
         //given
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(TEST_SIGNING_KEY, boardUserDetailsService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(TEST_SIGNING_KEY);
         request.addHeader("Authorization", INVALID_SIGNATURE_TOKEN);
 
         //when
