@@ -1,33 +1,24 @@
 package com.milktea.main.util.security;
 
-import jakarta.servlet.FilterChain;
+
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.AdditionalMatchers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.IOException;
-
-import static org.mockito.Mockito.when;
+import java.util.*;
 
 
 @Slf4j
@@ -40,6 +31,7 @@ public class InitialAuthenticationFilterTest {
     private static MockAuthenticationManager manager;
 
     private static final String TEST_USERNAME = "newUser";
+    private static final String TEST_USER_AUTHORITY = "USER";
     private static final String TEST_PASSWORD = "12341234";
     private static final String TEST_SIGNING_KEY = "adsfasfasfasdfasdfasfasdfasfasdfasdfasfdasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasfd";
 
@@ -78,7 +70,13 @@ public class InitialAuthenticationFilterTest {
             if (!username.equals(TEST_USERNAME) || !password.equals(TEST_PASSWORD))
                 throw new BadCredentialsException("자격 증명이 잘못됨");
 
-            return authentication;
+            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority(TEST_USER_AUTHORITY));
+
+            return new UsernamePasswordAuthenticationToken(
+                    username,
+                    password,
+                    authorities);
         }
     }
 }

@@ -10,7 +10,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,15 +23,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.milktea.main.util.security.InitialAuthenticationFilter.AUTHORITY_DELIMITER;
+
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.signing.key}")
     private final String signingKey;
-
-    private final BoardUserDetailsService boardUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -48,8 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .getBody();
 
         String username = String.valueOf(claims.get("username"));
-        BoardUserDetails userDetails = boardUserDetailsService.loadUserByUsername(username);
-        List<SimpleGrantedAuthority> authorities = userDetails.getAuthorities();
+
+        //하나의 String으로 되어있는 Claims.get("authorities")에 "AUTHORITY1, AUTHORITY2"를 분리하여 List<? extends GrantedAuthority>로 만든다.
+        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(AUTHORITY_DELIMITER))
+                .map(SimpleGrantedAuthority::new)
+                .toList();
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthentication(
                 username,
