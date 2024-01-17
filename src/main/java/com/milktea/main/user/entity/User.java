@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class User extends TimestampEntity {
     private final List<Authority> authorities = new ArrayList<>();
 
     @Builder
-    public User(String email, String username, String bio, String image, String password) {
+    public User(String email, String username, String bio, String image) {
         String inputBio = DEFAULT_BIO;
         if (!Objects.isNull(bio)) inputBio = bio;
 
@@ -48,6 +49,14 @@ public class User extends TimestampEntity {
         this.username = username;
         this.bio = inputBio;
         this.image = inputImage;
-        this.password = password;
+    }
+
+    public void setPassword(String password, PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public void addAuthority(Authority authority) {
+        authority.setUser(this);
+        authorities.add(authority);
     }
 }
