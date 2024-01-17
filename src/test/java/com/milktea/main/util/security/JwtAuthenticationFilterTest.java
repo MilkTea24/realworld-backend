@@ -1,5 +1,6 @@
 package com.milktea.main.util.security;
 
+import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -28,10 +30,8 @@ public class JwtAuthenticationFilterTest {
     private static MockFilterChain filterChain;
     private static MockBoardUserDetailsService boardUserDetailsService;
 
+    private static User correctTestUser;
 
-    private static final String TEST_USERNAME = "newUser";
-    private static final String TEST_PASSWORD = "12341234";
-    private static final String TEST_USER_AUTHORITY = "USER";
     private static final String TEST_SIGNING_KEY = "adsfasfasfasdfasdfasfasdfasfasdfasdfasfdasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasfd";
     private static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MDQ5ODMyMzEsInVzZXJuYW1lIjoibmV3VXNlciIsImF1dGhvcml0aWVzIjoiVVNFUiJ9.NnhHsW_Uf8Zitym7x0_AUEznEtRYOMLKB8VwknuGw3uJgVuUDIRmx-Vt3nYiWBUea87SpWq4fKDCFDonMKZpqw";
 
@@ -40,6 +40,7 @@ public class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setup() {
+        correctTestUser = UserMother.user().build();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = new MockFilterChain();
@@ -59,14 +60,12 @@ public class JwtAuthenticationFilterTest {
         //then
         Authentication result = SecurityContextHolder.getContext().getAuthentication();
         String username = result.getName();
-        Assertions.assertEquals(TEST_USERNAME, username);
+        Assertions.assertEquals("newUser", username);
 
         Collection<? extends GrantedAuthority> authorities = result.getAuthorities();
         Assertions.assertEquals(1, authorities.size());
 
-        for (GrantedAuthority a : authorities) {
-            Assertions.assertEquals(TEST_USER_AUTHORITY, a.getAuthority());
-        }
+        Assertions.assertEquals("USER", authorities.toArray()[0].toString());
     }
 
     @Test
@@ -88,15 +87,12 @@ public class JwtAuthenticationFilterTest {
 
         @Override
         public BoardUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-            if (!username.equals(TEST_USERNAME)) {
+            if (!username.equals(correctTestUser.getUsername())) {
                throw new UsernameNotFoundException(
                         "인증 과정에서 문제가 발생하였습니다.");
             }
 
-            Authority authority = new Authority(TEST_USER_AUTHORITY);
-            User user = User.builder().username(username).build();
-            authority.setUser(user);
-            return new BoardUserDetails(user);
+            return new BoardUserDetails(correctTestUser);
         }
     }
 }
