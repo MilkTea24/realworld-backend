@@ -26,7 +26,6 @@ public class UserService {
                 .email(userRequest.email())
                 .bio(userRequest.bio())
                 .image(userRequest.image())
-                .password(encodedPassword)
                 .build();
 
 
