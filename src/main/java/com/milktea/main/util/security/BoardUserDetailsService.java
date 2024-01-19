@@ -3,7 +3,6 @@ package com.milktea.main.util.security;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,6 @@
 package com.milktea.main.util.security;
 
 import com.milktea.main.factory.UserMother;
-import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.ArrayList;
 
 @Slf4j
 public class UsernamePasswordAuthenticationProviderTest {

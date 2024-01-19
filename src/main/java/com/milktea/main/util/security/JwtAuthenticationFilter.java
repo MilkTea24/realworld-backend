@@ -1,7 +1,6 @@
 package com.milktea.main.util.security;
 
 
-import com.milktea.main.user.entity.Authority;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,8 +23,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.milktea.main.util.security.InitialAuthenticationFilter.AUTHORITY_DELIMITER;
 
 @Component
 @Slf4j
@@ -54,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = String.valueOf(claims.get("username"));
 
         //하나의 String으로 되어있는 Claims.get("authorities")에 "AUTHORITY1, AUTHORITY2"를 분리하여 List<? extends GrantedAuthority>로 만든다.
-        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(AUTHORITY_DELIMITER))
+        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(InitialAuthenticationFilter.AUTHORITY_DELIMITER))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
