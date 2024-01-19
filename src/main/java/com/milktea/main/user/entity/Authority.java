@@ -2,6 +2,7 @@ package com.milktea.main.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "authority_tb")
@@ -21,9 +22,7 @@ public class Authority {
         this.name = name;
     }
 
-    //연관관계 편의 메소드
     public void setUser(User user) {
         this.user = user;
-        user.getAuthorities().add(this);
     }
 }

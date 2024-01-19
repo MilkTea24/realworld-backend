@@ -1,5 +1,6 @@
 package com.milktea.main.util.security;
 
+import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
@@ -19,14 +19,13 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 public class BoardUserDetailsServiceTest {
-    private static final String TEST_USERNAME = "newUser";
-
-    private static final String TEST_USER_AUTHORITY = "USER";
+    private static User correctTestUser;
 
     private static UserRepository userRepository;
 
     @BeforeEach
     void setup(){
+        correctTestUser = UserMother.user().build();
         userRepository = Mockito.mock(UserRepository.class);
     }
 
@@ -35,14 +34,15 @@ public class BoardUserDetailsServiceTest {
     void correct_username_test() {
         //given
         BoardUserDetailsService boardUserDetailsService = new BoardUserDetailsService(userRepository);
+        String testUsername = correctTestUser.getUsername();
 
         //when
-        when(userRepository.findByUsername(eq(TEST_USERNAME))).thenReturn(Optional.of(User.builder().username(TEST_USERNAME).build()));
-        BoardUserDetails result = boardUserDetailsService.loadUserByUsername(TEST_USERNAME);
+        when(userRepository.findByUsername(eq(testUsername))).thenReturn(Optional.of(correctTestUser));
+        BoardUserDetails result = boardUserDetailsService.loadUserByUsername(testUsername);
 
         //then
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(TEST_USERNAME, result.getUsername());
+        Assertions.assertEquals("newUser", result.getUsername());
     }
 
     @Test
@@ -50,9 +50,10 @@ public class BoardUserDetailsServiceTest {
     void incorrect_username_test() {
         //given
         BoardUserDetailsService boardUserDetailsService = new BoardUserDetailsService(userRepository);
+        String testUsername = correctTestUser.getUsername();
 
         //when
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
-        Assertions.assertThrows(UsernameNotFoundException.class,() -> boardUserDetailsService.loadUserByUsername(TEST_USERNAME));
+        Assertions.assertThrows(UsernameNotFoundException.class,() -> boardUserDetailsService.loadUserByUsername(testUsername));
     }
 }

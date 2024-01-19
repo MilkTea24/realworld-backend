@@ -32,9 +32,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         //비밀번호 맞는지 체크
         boolean checkPasswordResult = checkPassword(user, password);
-        log.debug("사용자가 전달한 비밀번호와 저장된 비밀번호의 일치 여부 - " + checkPasswordResult);
-        log.debug("사용자가 전달한 비밀번호 - " + password);
-        log.debug("DB에 저장된 비밀번호 - " + user.getPassword());
+        log.debug("사용자가 전달한 비밀번호와 저장된 비밀번호의 일치 여부 - {}", checkPasswordResult);
+        log.debug("사용자가 전달한 비밀번호 - {}", password);
+        log.debug("DB에 저장된 비밀번호 - {}", user.getPassword());
 
         //비밀번호 맞으면
         if (checkPasswordResult) {
