@@ -11,11 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
@@ -23,6 +26,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.milktea.main.util.security.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
+import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
 
 @Component
 @Slf4j
@@ -65,9 +73,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    //"/api/users/login" 요청에는 필터링하지 않도록
+    //JWT 인증이 필요없는 요청에는 필터링하지 않도록
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/api/users/login");
+        String requestPath = request.getServletPath();
+
+        //모든 Method를 허용하는 API는 antPathMatcher로 검증
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        if (Arrays.stream(ALL_METHOD_WHITELIST).anyMatch(pattern -> antPathMatcher.match(pattern, requestPath))) return true;
+
+        //특정 Method만 허용하는 API는 RegexRequestMatchers로 검증
+        if (Arrays.stream(SPECIFIC_METHOD_WHITELIST).anyMatch(regexRequestMatcher -> regexRequestMatcher.matches(request))) return true;
+        return false;
     }
 }
