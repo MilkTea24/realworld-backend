@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,9 +24,10 @@ public class UserRestController {
         return new ResponseEntity<>(null, null);
     }
 
-    @PostMapping("/")
-    public ResponseEntity<?> register(@Valid UserRegisterRequest userRegisterRequest) {
-        UserRegisterResponse response = userService.registerUser(userRegisterRequest);
+    @PostMapping("")
+    public ResponseEntity<?> register(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
+        UserRegisterRequest.UserRegisterDTO userDTO = userRegisterRequest.userRegisterDTO();
+        UserRegisterResponse response = userService.registerUser(userDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

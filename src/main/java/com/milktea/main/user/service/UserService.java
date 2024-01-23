@@ -21,7 +21,7 @@ public class UserService {
 
     //Bean으로 등록된 passwordEncoder로 인코딩 과정을 거치고 userRepository에 생성한 User를 보냄
     @Transactional
-    public UserRegisterResponse registerUser(UserRegisterRequest userRequest) {
+    public UserRegisterResponse registerUser(UserRegisterRequest.UserRegisterDTO userRequest) {
         //이미 가입된 Username이 있는지 확인
         checkDuplicateUsername(userRequest);
 
@@ -39,7 +39,7 @@ public class UserService {
         return new UserRegisterResponse(dbUser);
     }
 
-    private void checkDuplicateUsername(UserRegisterRequest userRequest) {
+    private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {
         String registerUsername = userRequest.username();
         if (userRepository.findByUsername(registerUsername).isPresent())
             throw new ValidationException(ValidationException.ErrorType.DUPLICATE_USERNAME, "username", "이미 존재하는 username입니다.");
