@@ -1,6 +1,7 @@
 package com.milktea.main.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.milktea.main.user.entity.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +17,11 @@ public record UserRegisterRequest(@JsonProperty("user") @Valid UserRegisterDTO u
             @NotNull String password) {
         public UserRegisterDTO{
             log.debug("UserRegisterDTO 생성 - username = {}, email = {}", username, email);
+        }
+
+        //테스트 데이터 생성용
+        public UserRegisterDTO(User user) {
+            this(user.getUsername(), user.getEmail(), user.getBio(), user.getImage(), user.getPassword());
         }
     }
 }
