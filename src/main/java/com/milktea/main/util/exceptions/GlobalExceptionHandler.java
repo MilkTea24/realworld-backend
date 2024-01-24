@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         List<FieldError> errors = e.getFieldErrors();
 
@@ -30,4 +30,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @ExceptionHandler(ValidationException.class)
+    protected ResponseEntity<?> handleValidationException(ValidationException e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                new ErrorResponse.Errors(
+                        List.of(String.format("Error Type : %s, Field: %s, Message: %s", e.getType(), e.getField(), e.getMessage()))
+                )
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
 }

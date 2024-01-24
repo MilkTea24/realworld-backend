@@ -36,7 +36,7 @@ public class UserService {
 
         User dbUser = userRepository.save(saveUser);
 
-        return new UserRegisterResponse(dbUser);
+        return new UserRegisterResponse(new UserRegisterResponse.UserRegisterDTO(dbUser));
     }
 
     private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {

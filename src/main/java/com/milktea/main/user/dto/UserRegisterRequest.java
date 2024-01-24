@@ -1,12 +1,13 @@
 package com.milktea.main.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public record UserRegisterRequest(@JsonProperty("user") @NotNull UserRegisterDTO userRegisterDTO) {
+public record UserRegisterRequest(@JsonProperty("user") @Valid UserRegisterDTO userRegisterDTO) {
     public record UserRegisterDTO(
             @NotNull String username,
             @NotNull @Email String email,
