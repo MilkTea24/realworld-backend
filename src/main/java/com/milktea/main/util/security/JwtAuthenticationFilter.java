@@ -84,6 +84,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //특정 Method만 허용하는 API는 RegexRequestMatchers로 검증
         if (Arrays.stream(SPECIFIC_METHOD_WHITELIST).anyMatch(regexRequestMatcher -> regexRequestMatcher.matches(request))) return true;
+
+        //그 외 모든 요청은 필터링해야 함
         return false;
     }
 }

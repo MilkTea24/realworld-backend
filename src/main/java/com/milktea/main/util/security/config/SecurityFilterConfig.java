@@ -3,6 +3,8 @@ package com.milktea.main.util.security.config;
 import com.milktea.main.util.security.InitialAuthenticationFilter;
 import com.milktea.main.util.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,9 +47,11 @@ public class SecurityFilterConfig {
         return http.build();
     }
 
+    //h2-console URL 접근 위함
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers(ALL_METHOD_WHITELIST)
-                .requestMatchers(SPECIFIC_METHOD_WHITELIST);
+    @ConditionalOnProperty(name = "spring.h2.console.enabled",havingValue = "true")
+    public WebSecurityCustomizer configureH2ConsoleEnable() {
+        return web -> web.ignoring()
+                .requestMatchers(PathRequest.toH2Console());
     }
 }
