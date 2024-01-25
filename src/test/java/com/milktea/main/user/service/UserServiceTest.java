@@ -1,15 +1,12 @@
 package com.milktea.main.user.service;
 
-import com.milktea.main.factory.AuthorityMother;
 import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.dto.UserRegisterRequest;
 import com.milktea.main.user.dto.UserRegisterResponse;
-import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
 import com.milktea.main.util.exceptions.ValidationException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -25,7 +22,6 @@ import static org.mockito.Mockito.when;
 @Slf4j
 public class UserServiceTest {
     private static User user;
-    private static Authority authority;
 
     private static UserRepository userRepository;
 
@@ -37,7 +33,6 @@ public class UserServiceTest {
     @BeforeEach
     void setup() {
         user = UserMother.user().build();
-        authority = AuthorityMother.authority().build();
         userRepository = Mockito.mock(UserRepository.class);
         authorityRepository = Mockito.mock(AuthorityRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();

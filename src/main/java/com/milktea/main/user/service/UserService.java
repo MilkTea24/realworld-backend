@@ -8,7 +8,6 @@ import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
 import com.milktea.main.util.exceptions.ValidationException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
