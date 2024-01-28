@@ -1,7 +1,8 @@
 package com.milktea.main.util.security.config;
 
-import com.milktea.main.util.security.InitialAuthenticationFilter;
-import com.milktea.main.util.security.JwtAuthenticationFilter;
+import com.milktea.main.util.security.filter.ExceptionHandlingFilter;
+import com.milktea.main.util.security.filter.InitialAuthenticationFilter;
+import com.milktea.main.util.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -22,6 +23,7 @@ import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC
 public class SecurityFilterConfig {
     private final InitialAuthenticationFilter initialAuthenticationFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ExceptionHandlingFilter exceptionHandlingFilter;
 
 
 
@@ -34,12 +36,16 @@ public class SecurityFilterConfig {
                 .requestMatchers(SPECIFIC_METHOD_WHITELIST).permitAll()
 
                         //그 외 API는 모두 인증 필요
-                .anyRequest().authenticated())
-                //BasicAuthenticationFilter 다음 jwtAuthenticationFilter가 위치
-                .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
+                .anyRequest().authenticated());
+
+
 
         //basicAuthenticationFilter와 같은 우선순위로 initalAuthenticationFilter 삽입
-        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class);
+        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class)
+                //BasicAuthenticationFilter 다음 jwtAuthenticationFilter가 위치
+                        .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+                                .addFilterBefore(exceptionHandlingFilter, BasicAuthenticationFilter.class);
+
 
         //세션 대신 JWT 토큰 사용
         http.sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
