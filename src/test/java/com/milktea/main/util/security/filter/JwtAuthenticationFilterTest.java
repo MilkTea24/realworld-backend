@@ -1,8 +1,11 @@
-package com.milktea.main.util.security;
+package com.milktea.main.util.security.filter;
 
 import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
+import com.milktea.main.util.security.BoardUserDetails;
+import com.milktea.main.util.security.BoardUserDetailsService;
+import com.milktea.main.util.security.filter.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -31,10 +34,10 @@ public class JwtAuthenticationFilterTest {
     private static User correctTestUser;
 
     private static final String TEST_SIGNING_KEY = "adsfasfasfasdfasdfasfasdfasfasdfasdfasfdasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasfd";
-    private static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MDQ5ODMyMzEsInVzZXJuYW1lIjoibmV3VXNlciIsImF1dGhvcml0aWVzIjoiVVNFUiJ9.NnhHsW_Uf8Zitym7x0_AUEznEtRYOMLKB8VwknuGw3uJgVuUDIRmx-Vt3nYiWBUea87SpWq4fKDCFDonMKZpqw";
+    private static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MDYxODYzNzksImVtYWlsIjoibmV3VXNlckBuYXZlci5jb20iLCJhdXRob3JpdGllcyI6IlVTRVIifQ.Tw-MfmOivJYkMZNbrDUaXCxAt9Rl7iTJhof--Q7kq7YlBoP4sbOgYVUnJTt41mREQkKGQRhbDIQdYGqy3wDsNw";
 
     //기존 Token signature에서 마지막 한글자를 a로 변경
-    private static final String INVALID_SIGNATURE_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MDQ5ODMyMzEsInVzZXJuYW1lIjoibmV3VXNlciIsImF1dGhvcml0aWVzIjoiVVNFUiJ9.NnhHsW_Uf8Zitym7x0_AUEznEtRYOMLKB8VwknuGw3uJgVuUDIRmx-Vt3nYiWBUea87SpWq4fKDCFDonMKZpqa";
+    private static final String INVALID_SIGNATURE_TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE3MDYxODYzNzksImVtYWlsIjoibmV3VXNlckBuYXZlci5jb20iLCJhdXRob3JpdGllcyI6IlVTRVIifQ.Tw-MfmOivJYkMZNbrDUaXCxAt9Rl7iTJhof--Q7kq7YlBoP4sbOgYVUnJTt41mREQkKGQRhbDIQdYGqy3wDsNa";
 
     @BeforeEach
     void setup() {
@@ -57,8 +60,8 @@ public class JwtAuthenticationFilterTest {
 
         //then
         Authentication result = SecurityContextHolder.getContext().getAuthentication();
-        String username = result.getName();
-        Assertions.assertEquals("newUser", username);
+        String email = result.getName();
+        Assertions.assertEquals("newUser@naver.com", email);
 
         Collection<? extends GrantedAuthority> authorities = result.getAuthorities();
         Assertions.assertEquals(1, authorities.size());

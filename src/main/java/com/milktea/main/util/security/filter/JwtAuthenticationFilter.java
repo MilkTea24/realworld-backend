@@ -1,6 +1,7 @@
-package com.milktea.main.util.security;
+package com.milktea.main.util.security.filter;
 
 
+import com.milktea.main.util.security.EmailPasswordAuthentication;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -11,12 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,8 +25,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.milktea.main.util.security.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
 import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
@@ -55,15 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .parseClaimsJws(jwt) //토큰이 유효한지 검사. 유효하지 않으면 여러 종류 예외 발생
                 .getBody();
 
-        String username = String.valueOf(claims.get("username"));
+        String email = String.valueOf(claims.get("email"));
 
         //하나의 String으로 되어있는 Claims.get("authorities")에 "AUTHORITY1, AUTHORITY2"를 분리하여 List<? extends GrantedAuthority>로 만든다.
         List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(InitialAuthenticationFilter.AUTHORITY_DELIMITER))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthentication(
-                username,
+        UsernamePasswordAuthenticationToken auth = new EmailPasswordAuthentication(
+                email,
                 null,
                 authorities
         );
