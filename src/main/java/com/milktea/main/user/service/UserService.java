@@ -1,6 +1,7 @@
 package com.milktea.main.user.service;
 
 import com.milktea.main.user.dto.UserLoginRequest;
+import com.milktea.main.user.dto.UserLoginResponse;
 import com.milktea.main.user.dto.UserRegisterRequest;
 import com.milktea.main.user.dto.UserRegisterResponse;
 import com.milktea.main.user.entity.Authority;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -61,7 +64,16 @@ public class UserService {
             throw new ValidationException(ValidationException.ErrorType.DUPLICATE_USERNAME, "username", "이미 존재하는 username입니다.");
     }
 
-    public void login(UserLoginRequest userLoginRequest) {
+    public UserLoginResponse getLoginUser(UserLoginRequest.UserLoginDTO userRequest) {
+        String loginEmail = userRequest.email();
 
+        Optional<User> findUser = userRepository.findByEmail(loginEmail);
+
+        if (findUser.isEmpty()) {
+            log.error("인증을 통과한 유저의 정보를 데이터베이스에서 찾을 수 없습니다. 즉시 원인을 파악해야 합니다.");
+            throw new RuntimeException("사용자 정보를 찾는 중 문제가 발생하였습니다.");
+        }
+
+        return new UserLoginResponse(new UserLoginResponse.UserRegisterDTO(findUser.get()));
     }
 }
