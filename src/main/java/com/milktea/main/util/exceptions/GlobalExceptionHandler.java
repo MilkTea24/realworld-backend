@@ -39,4 +39,15 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY);
     }
+
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<?> handleException(Exception e) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                new ErrorResponse.Errors(
+                        List.of(String.format("%s", e.getMessage()))
+                )
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
