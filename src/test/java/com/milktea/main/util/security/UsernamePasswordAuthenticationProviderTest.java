@@ -40,7 +40,7 @@ public class UsernamePasswordAuthenticationProviderTest {
     void authenticate_success_test() {
         //given
         Authentication inputAuth = new UsernamePasswordAuthenticationToken(correctTestUser.getUsername(), INPUT_PASSWORD);
-        UsernamePasswordAuthenticationProvider provider = new UsernamePasswordAuthenticationProvider(userDetailsService, passwordEncoder);
+        EmailPasswordAuthenticationProvider provider = new EmailPasswordAuthenticationProvider(userDetailsService, passwordEncoder);
 
         //when
         Authentication outputAuth = provider.authenticate(inputAuth);
@@ -58,7 +58,7 @@ public class UsernamePasswordAuthenticationProviderTest {
 
         //given
         Authentication inputAuth = new UsernamePasswordAuthenticationToken(incorrectPasswordUser.getUsername(), incorrectPasswordUser.getPassword());
-        UsernamePasswordAuthenticationProvider provider = new UsernamePasswordAuthenticationProvider(userDetailsService, passwordEncoder);
+        EmailPasswordAuthenticationProvider provider = new EmailPasswordAuthenticationProvider(userDetailsService, passwordEncoder);
 
         //when
         Assertions.assertThrows(BadCredentialsException.class, () -> provider.authenticate(inputAuth));

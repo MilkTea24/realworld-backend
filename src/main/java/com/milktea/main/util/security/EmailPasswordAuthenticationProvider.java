@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
+public class EmailPasswordAuthenticationProvider implements AuthenticationProvider {
     //두 개의 생성자를 가진 AuthenticationToken을 반환함
     private final BoardUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -22,12 +22,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         //자격 증명으로 사용자가 전송한 아이디, 비밀번호
-        String username = authentication.getName();
+        String email = authentication.getName();
         String password = String.valueOf(authentication.getCredentials());
 
         //기존에 저장된 사용자 정보
         //저장된 사용자가 없는 경우는 userDetailsService에서 처리
-        BoardUserDetails user = userDetailsService.loadUserByUsername(username);
+        BoardUserDetails user = userDetailsService.loadUserByUsername(email);
 
         //비밀번호 맞는지 체크
         boolean checkPasswordResult = checkPassword(user, password);
@@ -42,13 +42,14 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                     user.getPassword(),
                     user.getAuthorities());
         } else {
-            throw new BadCredentialsException("잘못된 자격 증명입니다.");
+            log.debug("비밀번호가 일치하지 않음!");
+            throw new BadCredentialsException("잘못된 이메일 또는 비밀번호입니다.");
         }
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return UsernamePasswordAuthentication.class.isAssignableFrom(authentication);
+        return EmailPasswordAuthentication.class.isAssignableFrom(authentication);
     }
 
 

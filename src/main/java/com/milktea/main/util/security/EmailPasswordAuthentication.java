@@ -6,9 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public class UsernamePasswordAuthentication extends UsernamePasswordAuthenticationToken {
+public class EmailPasswordAuthentication extends UsernamePasswordAuthenticationToken {
     //이 생성자를 호출하면 Authentication 객체가 인증됨
-    public UsernamePasswordAuthentication(
+    public EmailPasswordAuthentication(
             Object principal,
             Object credentials,
             Collection<? extends GrantedAuthority> authorities) {
@@ -16,7 +16,7 @@ public class UsernamePasswordAuthentication extends UsernamePasswordAuthenticati
     }
 
     //이 생성자를 호출하면 인증이 완료되지 않음
-    public UsernamePasswordAuthentication(
+    public EmailPasswordAuthentication(
             Object principal,
             Object credentials) {
         super(principal, credentials);
