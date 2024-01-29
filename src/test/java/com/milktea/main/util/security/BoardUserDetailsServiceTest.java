@@ -42,7 +42,7 @@ public class BoardUserDetailsServiceTest {
 
         //then
         Assertions.assertNotNull(result);
-        Assertions.assertEquals("newUser", result.getUsername());
+        Assertions.assertEquals("newUser@naver.com", result.getUsername());
     }
 
     @Test

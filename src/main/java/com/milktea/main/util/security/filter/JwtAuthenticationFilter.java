@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = request.getHeader("Authorization");
+        String parsingJwt = jwt.replaceFirst("Token ", "");
 
         //서명된 Jwt를 풀기 위한 Secret Key 생성
         SecretKey key = Keys.hmacShaKeyFor(
@@ -49,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key) //서명 검증을 위한 SecretKey 입력
                 .build()
-                .parseClaimsJws(jwt) //토큰이 유효한지 검사. 유효하지 않으면 여러 종류 예외 발생
+                .parseClaimsJws(parsingJwt) //토큰이 유효한지 검사. 유효하지 않으면 여러 종류 예외 발생
                 .getBody();
 
         String email = String.valueOf(claims.get("email"));
@@ -65,6 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authorities
         );
 
+        //이 때 담은 auth는 호출된 메서드가 종료될 때 까지 유효하다 -> sessionless를 사용헀기 때문에 영속화는 안됨
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         filterChain.doFilter(request, response);
