@@ -3,6 +3,7 @@ package com.milktea.main.util.security.filter;
 import com.google.gson.Gson;
 import com.milktea.main.user.dto.UserLoginRequest;
 import com.milktea.main.util.exceptions.ErrorResponse;
+import com.milktea.main.util.exceptions.ExceptionUtils;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import com.milktea.main.util.security.LoginHttpServletRequestWrapper;
 import io.jsonwebtoken.Claims;
@@ -53,7 +54,10 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 StringBuilder stringBuilder = getRequestToStringBuilder(loginRequestWrapper, response, filterChain);
                 body = stringBuilder.toString();
             } catch (IOException e) {
-                returnInternalErrorResponse(e, response);
+                log.error("request Body 변환 과정에서 error 발생함! - {}", e.getMessage());
+                if (log.isDebugEnabled()) log.debug("error stack - {}", ExceptionUtils.getStackTrace(e));
+                //ExceptionHandlingFilter가 처리할 것
+                throw new IOException("request body를 가져오는 중 문제가 발생했습니다.");
             }
 
             UserLoginRequest loginRequest = new Gson().fromJson(body, UserLoginRequest.class);
@@ -91,24 +95,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
 
             response.setHeader("Authorization", jwt);
 
-            filterChain.doFilter(request, response);
-    }
-
-    private void returnInternalErrorResponse(IOException e, HttpServletResponse response) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                new ErrorResponse.Errors(
-                        List.of(e.getMessage())
-                )
-        );
-
-        String responseBody = new Gson().toJson(errorResponse);
-
-        try {
-            response.getOutputStream().print(responseBody);
-        } catch (IOException e2) {
-            log.error("response body를 출력하는 중 문제가 발생했습니다.");
-            if (log.isDebugEnabled()) log.debug("위치 - {}\n 에러 stack - {}", this.getClass().getName(), e2.getStackTrace());
-        }
+            filterChain.doFilter(loginRequestWrapper, response);
     }
 
     private StringBuilder getRequestToStringBuilder(LoginHttpServletRequestWrapper loginRequestWrapper, HttpServletResponse response, FilterChain filterChain) throws IOException {
@@ -121,7 +108,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (IOException e) {
             log.error("request body를 불러오는 중 문제가 발생하였습니다.");
-            if (log.isDebugEnabled()) log.debug("위치 - {}\n 에러 stack - {}", this.getClass().getName(), e.getStackTrace());
+            if (log.isDebugEnabled()) log.debug("위치 - {}\n 에러 stack - {}", this.getClass().getName(), ExceptionUtils.getStackTrace(e));
             throw new IOException(String.format("Request Body를 가져올 수 없습니다"));
         }
 

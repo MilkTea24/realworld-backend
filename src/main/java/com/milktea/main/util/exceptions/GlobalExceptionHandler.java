@@ -42,6 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleException(Exception e) {
+        log.debug("error stack - {}", ExceptionUtils.getStackTrace(e));
         ErrorResponse errorResponse = new ErrorResponse(
                 new ErrorResponse.Errors(
                         List.of(String.format("%s", e.getMessage()))

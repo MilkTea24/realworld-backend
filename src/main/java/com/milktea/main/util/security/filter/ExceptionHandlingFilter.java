@@ -2,12 +2,12 @@ package com.milktea.main.util.security.filter;
 
 import com.google.gson.Gson;
 import com.milktea.main.util.exceptions.ErrorResponse;
+import com.milktea.main.util.exceptions.ExceptionUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,6 +23,10 @@ public class ExceptionHandlingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            //에러 로그 확인
+            log.error("Security Filter에서 에러 발생함! - {}", e.getMessage());
+            if (log.isDebugEnabled()) log.debug("error stack - {}", ExceptionUtils.getStackTrace(e));
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             ErrorResponse errorResponse = createErrorResponse(e, response);
             setResponseBody(response, errorResponse);
@@ -45,7 +49,7 @@ public class ExceptionHandlingFilter extends OncePerRequestFilter {
             outputStreamWriter.write(jsonString);
         } catch (IOException e) {
             log.error("response body를 작성할 수 없습니다.");
-            if (log.isDebugEnabled()) log.debug("위치 - {}, error stack - {}", this.getClass().getName(), e.getStackTrace());
+            if (log.isDebugEnabled()) log.debug("위치 - {}, error stack - {}", this.getClass().getName(), ExceptionUtils.getStackTrace(e));
         }
     }
 }

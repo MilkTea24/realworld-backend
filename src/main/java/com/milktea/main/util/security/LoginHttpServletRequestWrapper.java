@@ -1,5 +1,6 @@
 package com.milktea.main.util.security;
 
+import com.milktea.main.util.exceptions.ExceptionUtils;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,10 +55,8 @@ public class LoginHttpServletRequestWrapper extends HttpServletRequestWrapper {
             return StreamUtils.copyToString(servletInputStream, StandardCharsets.UTF_8);
         } catch (IOException e) {
             log.error("request의 body를 읽어들이던 중 문제가 발생하였습니다.");
-            if (log.isDebugEnabled()) log.debug("위치 - {},\n 에러 stack\n - {}", this.getClass().getName(), e.getStackTrace());
+            if (log.isDebugEnabled()) log.debug("위치 - {},\n 에러 stack\n - {}", this.getClass().getName(), ExceptionUtils.getStackTrace(e));
             throw e;
         }
     }
-
-
 }

@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -44,6 +43,7 @@ public class SecurityFilterConfig {
         http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class)
                 //BasicAuthenticationFilter 다음 jwtAuthenticationFilter가 위치
                         .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+                //exceptionHandlingFilter를 먼저 실행하여 뒤의 필터 Exception 잡기
                                 .addFilterBefore(exceptionHandlingFilter, BasicAuthenticationFilter.class);
 
 
