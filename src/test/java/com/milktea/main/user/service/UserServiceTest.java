@@ -72,6 +72,21 @@ public class UserServiceTest {
             //then
             Assertions.assertThrows(ValidationException.class, () -> userService.registerUser(userRegisterRequest));
         }
+
+        @Test
+        @DisplayName("중복된 email 실패 테스트")
+        void register_user_duplicate_email_fail_test() {
+            //given
+            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
+            UserRegisterRequest.UserRegisterDTO userRegisterRequest = new UserRegisterRequest.UserRegisterDTO(user);
+
+            //when
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenReturn(user);
+
+            //then
+            Assertions.assertThrows(ValidationException.class, () -> userService.registerUser(userRegisterRequest));
+        }
     }
 
 
