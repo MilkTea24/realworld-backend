@@ -1,8 +1,9 @@
 package com.milktea.main.user.controller;
 
 import com.milktea.main.factory.UserMother;
-import com.milktea.main.user.dto.UserLoginResponse;
-import com.milktea.main.user.dto.UserRegisterResponse;
+import com.milktea.main.user.dto.response.UserInfoResponse;
+import com.milktea.main.user.dto.response.UserLoginResponse;
+import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.service.UserService;
 import com.milktea.main.util.exceptions.GlobalExceptionHandler;
@@ -27,6 +28,7 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -263,6 +265,36 @@ public class UserControllerTest {
                             .accept(MediaType.APPLICATION_JSON)
                             .characterEncoding("UTF-8")
                             .content(jsonString));
+
+
+            //then
+            log.debug("출력 JSON - {}", actions.andReturn().getResponse().getContentAsString());
+
+            actions
+                    .andExpect(jsonPath("user.username").value("newUser"))
+                    .andExpect(jsonPath("user.email").value("newUser@naver.com"));
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 얻기(GET /api/user)")
+    class GetUser{
+        private static final String GET_USER_URL = "/api/user";
+        @Test
+        @DisplayName("성공 테스트")
+        void login_success_test() throws Exception {
+            //given
+
+            //출력할 객체 생성
+            User user = UserMother.user().build();
+            UserInfoResponse response = new UserInfoResponse(new UserInfoResponse.UserInfoDTO(user));
+
+            //mock 정의
+            when(mockUserService.getCurrentUser(any())).thenReturn(response);
+
+            //when
+            final ResultActions actions = mockMvc.perform(
+                    get(GET_USER_URL));
 
 
             //then

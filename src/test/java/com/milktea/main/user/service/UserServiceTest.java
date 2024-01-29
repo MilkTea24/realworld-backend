@@ -93,8 +93,47 @@ public class UserServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("로그인(POST /api/users/login)")
+    class Login {
+        @Test
+        @DisplayName("성공 테스트")
+        void login_user_success_test() {
+            //given
+            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
+            UserLoginRequest.UserLoginDTO userLoginRequest = new UserLoginRequest.UserLoginDTO(user);
+
+            //when
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenReturn(user);
+            UserLoginResponse result = userService.getLoginUser(userLoginRequest);
 
 
+            //then
+            Assertions.assertEquals("newUser", result.userLoginDTO().username());
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 얻기(GET /api/user)")
+    class GetUser {
+        @Test
+        @DisplayName("성공 테스트")
+        void get_user_success_test() {
+            //given
+            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
+            UserInfoDTO userInfoRequest = new UserInfoDTO(user);
+
+            //when
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.save(any())).thenReturn(user);
+            UserInfoResponse result = userService.getCurrentUser(userInfoRequest);
+
+
+            //then
+            Assertions.assertEquals("newUser", result.userInfoDTO().username());
+        }
+    }
 
 
 }
