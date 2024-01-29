@@ -5,14 +5,14 @@ import com.milktea.main.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public record UserLoginResponse(@JsonProperty("user") UserRegisterDTO userRegisterDTO) {
-    public record UserRegisterDTO(
+public record UserLoginResponse(@JsonProperty("user") UserLoginDTO userRegisterDTO) {
+    public record UserLoginDTO(
             String email,
             String token,
             String username,
             String bio,
             String image) {
-        public UserRegisterDTO(User user){
+        public UserLoginDTO(User user){
             this(user.getEmail(), null, user.getUsername(), user.getBio(), user.getImage());
             log.debug("UserRegisterDTO 생성 - username = {}, email = {}", username, email);
         }

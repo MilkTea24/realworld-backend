@@ -71,7 +71,7 @@ public class UserService {
             throw new RuntimeException("사용자 정보를 찾는 중 문제가 발생하였습니다.");
         }
 
-        return new UserLoginResponse(new UserLoginResponse.UserRegisterDTO(findUser.get()));
+        return new UserLoginResponse(new UserLoginResponse.UserLoginDTO(findUser.get()));
     }
 
     private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {
