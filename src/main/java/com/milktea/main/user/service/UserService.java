@@ -76,6 +76,19 @@ public class UserService {
         return new UserLoginResponse(new UserLoginResponse.UserLoginDTO(findUser.get()));
     }
 
+    public UserInfoResponse getCurrentUser(UserInfoDTO userRequest) {
+        String currentUserEmail = userRequest.email();
+
+        Optional<User> findUser = userRepository.findByEmail(currentUserEmail);
+
+        if (findUser.isEmpty()) {
+            log.error("인증을 통과한 유저의 정보를 데이터베이스에서 찾을 수 없습니다. 즉시 원인을 파악해야 합니다.");
+            throw new RuntimeException("사용자 정보를 찾는 중 문제가 발생하였습니다.");
+        }
+
+        return new UserInfoResponse(new UserInfoResponse.UserInfoDTO(findUser.get()));
+    }
+
     private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {
         String registerUsername = userRequest.username();
         if (userRepository.findByUsername(registerUsername).isPresent())

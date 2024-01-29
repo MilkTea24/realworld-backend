@@ -11,30 +11,35 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
 public class UserRestController {
     private final UserService userService;
 
     //인증 관련 핵심 로직은 InitialAuthenticationFilter에 있음
     //컨트롤러 부분은 단순 User 정보 반환
-    @PostMapping("/login")
+    @PostMapping("/api/users/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         UserLoginRequest.UserLoginDTO userDTO = userLoginRequest.userLoginDTO();
         UserLoginResponse response = userService.getLoginUser(userDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("")
+    @PostMapping("/api/users")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegisterRequest userRegisterRequest) {
         UserRegisterRequest.UserRegisterDTO userDTO = userRegisterRequest.userRegisterDTO();
         UserRegisterResponse response = userService.registerUser(userDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //API 명세 상 users가 아님 user임 주의!
+    @GetMapping("/api/user")
+    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal String email) {
+        UserInfoDTO userDTO = new UserInfoDTO(email);
+        UserInfoResponse response = userService.getCurrentUser(userDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
