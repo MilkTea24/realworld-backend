@@ -34,6 +34,9 @@ public class UserService {
         //이미 가입된 Username이 있는지 확인
         checkDuplicateUsername(userRequest);
 
+        //이미 가입된 이메일이 있는지 확인
+        checkDuplicateEmail(userRequest);
+
         User saveUser = User.builder()
                 .username(userRequest.username())
                 .email(userRequest.email())
@@ -58,12 +61,6 @@ public class UserService {
         return new UserRegisterResponse(new UserRegisterResponse.UserRegisterDTO(dbUser));
     }
 
-    private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {
-        String registerUsername = userRequest.username();
-        if (userRepository.findByUsername(registerUsername).isPresent())
-            throw new ValidationException(ValidationException.ErrorType.DUPLICATE_USERNAME, "username", "이미 존재하는 username입니다.");
-    }
-
     public UserLoginResponse getLoginUser(UserLoginRequest.UserLoginDTO userRequest) {
         String loginEmail = userRequest.email();
 
@@ -75,5 +72,17 @@ public class UserService {
         }
 
         return new UserLoginResponse(new UserLoginResponse.UserRegisterDTO(findUser.get()));
+    }
+
+    private void checkDuplicateUsername(UserRegisterRequest.UserRegisterDTO userRequest) {
+        String registerUsername = userRequest.username();
+        if (userRepository.findByUsername(registerUsername).isPresent())
+            throw new ValidationException(ValidationException.ErrorType.DUPLICATE_USERNAME, "username", "이미 존재하는 username입니다.");
+    }
+
+    private void checkDuplicateEmail(UserRegisterRequest.UserRegisterDTO userRequest) {
+        String registerEmail = userRequest.email();
+        if (userRepository.findByEmail(registerEmail).isPresent())
+            throw new ValidationException(ValidationException.ErrorType.DUPLICATE_EMAIL, "email", "이미 존재하는 email입니다.");
     }
 }

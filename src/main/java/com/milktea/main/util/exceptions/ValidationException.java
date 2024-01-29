@@ -17,6 +17,7 @@ public class ValidationException extends RuntimeException {
     public enum ErrorType {
             INVALID_EMAIL,
             DUPLICATE_USERNAME,
-            INVALID_PASSWORD
+            INVALID_PASSWORD,
+            DUPLICATE_EMAIL
     }
 }
