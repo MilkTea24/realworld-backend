@@ -30,15 +30,15 @@ public class BoardUserDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("username이 존재하면 BoardUserDetails를 반환한다.")
+    @DisplayName("email이 존재하면 BoardUserDetails를 반환한다.")
     void correct_username_test() {
         //given
         BoardUserDetailsService boardUserDetailsService = new BoardUserDetailsService(userRepository);
-        String testUsername = correctTestUser.getUsername();
+        String testEmail = correctTestUser.getEmail();
 
         //when
-        when(userRepository.findByUsername(eq(testUsername))).thenReturn(Optional.of(correctTestUser));
-        BoardUserDetails result = boardUserDetailsService.loadUserByUsername(testUsername);
+        when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(correctTestUser));
+        BoardUserDetails result = boardUserDetailsService.loadUserByUsername(testEmail);
 
         //then
         Assertions.assertNotNull(result);
@@ -46,14 +46,14 @@ public class BoardUserDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 username이 주어지면 UsernameNotFoundException이 발생한다.")
+    @DisplayName("존재하지 않는 email이 주어지면 UsernameNotFoundException이 발생한다.")
     void incorrect_username_test() {
         //given
         BoardUserDetailsService boardUserDetailsService = new BoardUserDetailsService(userRepository);
-        String testUsername = correctTestUser.getUsername();
+        String testEmail = correctTestUser.getEmail();
 
         //when
-        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
-        Assertions.assertThrows(UsernameNotFoundException.class,() -> boardUserDetailsService.loadUserByUsername(testUsername));
+        when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+        Assertions.assertThrows(UsernameNotFoundException.class,() -> boardUserDetailsService.loadUserByUsername(testEmail));
     }
 }

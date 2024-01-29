@@ -1,7 +1,6 @@
 package com.milktea.main.util.security;
 
 import com.milktea.main.factory.UserMother;
-import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.ArrayList;
 
 @Slf4j
 public class UsernamePasswordAuthenticationProviderTest {
@@ -43,7 +40,7 @@ public class UsernamePasswordAuthenticationProviderTest {
     void authenticate_success_test() {
         //given
         Authentication inputAuth = new UsernamePasswordAuthenticationToken(correctTestUser.getUsername(), INPUT_PASSWORD);
-        UsernamePasswordAuthenticationProvider provider = new UsernamePasswordAuthenticationProvider(userDetailsService, passwordEncoder);
+        EmailPasswordAuthenticationProvider provider = new EmailPasswordAuthenticationProvider(userDetailsService, passwordEncoder);
 
         //when
         Authentication outputAuth = provider.authenticate(inputAuth);
@@ -61,7 +58,7 @@ public class UsernamePasswordAuthenticationProviderTest {
 
         //given
         Authentication inputAuth = new UsernamePasswordAuthenticationToken(incorrectPasswordUser.getUsername(), incorrectPasswordUser.getPassword());
-        UsernamePasswordAuthenticationProvider provider = new UsernamePasswordAuthenticationProvider(userDetailsService, passwordEncoder);
+        EmailPasswordAuthenticationProvider provider = new EmailPasswordAuthenticationProvider(userDetailsService, passwordEncoder);
 
         //when
         Assertions.assertThrows(BadCredentialsException.class, () -> provider.authenticate(inputAuth));

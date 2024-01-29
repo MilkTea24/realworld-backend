@@ -1,11 +1,13 @@
 package com.milktea.main.user.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "authority_tb")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Authority {
     @Id
     @GeneratedValue

@@ -1,50 +1,63 @@
 package com.milktea.main.util.security.config;
 
-import com.milktea.main.util.security.InitialAuthenticationFilter;
-import com.milktea.main.util.security.JwtAuthenticationFilter;
-import com.milktea.main.util.security.UsernamePasswordAuthenticationProvider;
+import com.milktea.main.util.security.filter.ExceptionHandlingFilter;
+import com.milktea.main.util.security.filter.InitialAuthenticationFilter;
+import com.milktea.main.util.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+
+import static com.milktea.main.util.security.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
+import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
 
 @Configuration
 @RequiredArgsConstructor
 public class SecurityFilterConfig {
     private final InitialAuthenticationFilter initialAuthenticationFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
+    private final ExceptionHandlingFilter exceptionHandlingFilter;
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
-
-        //basicAuthenticationFilter와 같은 우선순위로 initalAuthenticationFilter 삽입
-        //BasicAuthenticationFilter 다음 jwtAuthenticationFilter가 위치
-        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class)
-                .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
-
         http.authorizeHttpRequests(authorize -> authorize
                 //허용할 API 목록
-                .requestMatchers("/api/users/login", "/api/tags", "/api/profiles/*").permitAll()
-                .requestMatchers(new RegexRequestMatcher("/api/users", "POST"),
-                        new RegexRequestMatcher("/api/articles", "GET"),
-                        new RegexRequestMatcher("/api/articles/*", "GET"),
-                        new RegexRequestMatcher("/api/articles/*/comments", "GET")).permitAll()
-                //그 외 API는 모두 인증 필요
+                .requestMatchers(ALL_METHOD_WHITELIST).permitAll()
+                .requestMatchers(SPECIFIC_METHOD_WHITELIST).permitAll()
+
+                        //그 외 API는 모두 인증 필요
                 .anyRequest().authenticated());
+
+
+
+        //basicAuthenticationFilter와 같은 우선순위로 initalAuthenticationFilter 삽입
+        http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class)
+                //BasicAuthenticationFilter 다음 jwtAuthenticationFilter가 위치
+                        .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
+                //exceptionHandlingFilter를 먼저 실행하여 뒤의 필터 Exception 잡기
+                                .addFilterBefore(exceptionHandlingFilter, BasicAuthenticationFilter.class);
+
 
         //세션 대신 JWT 토큰 사용
         http.sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-
-
         return http.build();
+    }
+
+    //h2-console URL 접근 위함
+    @Bean
+    @ConditionalOnProperty(name = "spring.h2.console.enabled",havingValue = "true")
+    public WebSecurityCustomizer configureH2ConsoleEnable() {
+        return web -> web.ignoring()
+                .requestMatchers(PathRequest.toH2Console());
     }
 }
