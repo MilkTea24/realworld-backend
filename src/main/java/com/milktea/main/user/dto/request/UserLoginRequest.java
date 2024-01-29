@@ -1,4 +1,4 @@
-package com.milktea.main.user.dto;
+package com.milktea.main.user.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;

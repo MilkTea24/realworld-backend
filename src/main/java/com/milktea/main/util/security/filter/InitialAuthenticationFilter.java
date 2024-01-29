@@ -1,8 +1,7 @@
 package com.milktea.main.util.security.filter;
 
 import com.google.gson.Gson;
-import com.milktea.main.user.dto.UserLoginRequest;
-import com.milktea.main.util.exceptions.ErrorResponse;
+import com.milktea.main.user.dto.request.UserLoginRequest;
 import com.milktea.main.util.exceptions.ExceptionUtils;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import com.milktea.main.util.security.LoginHttpServletRequestWrapper;
@@ -29,7 +28,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Component

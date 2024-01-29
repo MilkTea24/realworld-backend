@@ -1,4 +1,4 @@
-package com.milktea.main.user.dto;
+package com.milktea.main.user.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.milktea.main.user.entity.User;

@@ -1,8 +1,12 @@
 package com.milktea.main.user.service;
 
 import com.milktea.main.factory.UserMother;
-import com.milktea.main.user.dto.UserRegisterRequest;
-import com.milktea.main.user.dto.UserRegisterResponse;
+import com.milktea.main.user.dto.request.UserInfoDTO;
+import com.milktea.main.user.dto.request.UserLoginRequest;
+import com.milktea.main.user.dto.request.UserRegisterRequest;
+import com.milktea.main.user.dto.response.UserInfoResponse;
+import com.milktea.main.user.dto.response.UserLoginResponse;
+import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
