@@ -2,10 +2,12 @@ package com.milktea.main.user.controller;
 
 import com.milktea.main.user.dto.request.UserInfoDTO;
 import com.milktea.main.user.dto.request.UserLoginRequest;
+import com.milktea.main.user.dto.request.UserUpdateRequest;
 import com.milktea.main.user.dto.response.UserInfoResponse;
 import com.milktea.main.user.dto.response.UserLoginResponse;
 import com.milktea.main.user.dto.request.UserRegisterRequest;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
+import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,14 @@ public class UserRestController {
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal String email) {
         UserInfoDTO userDTO = new UserInfoDTO(email);
         UserInfoResponse response = userService.getCurrentUser(userDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @PutMapping("/api/user")
+    public ResponseEntity<?> updateUserInfo(@AuthenticationPrincipal String email, @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
+        UserUpdateRequest.UserUpdateDTO userDTO = userUpdateRequest.userUpdateDTO();
+        UserUpdateResponse response = userService.updateUser(email, userDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
