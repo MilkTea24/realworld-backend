@@ -46,7 +46,7 @@ public class UserServiceTest {
         userRepository = Mockito.mock(UserRepository.class);
         authorityRepository = Mockito.mock(AuthorityRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
-        UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository, jwtTokenAdministrator);
+        userService = new UserService(passwordEncoder, userRepository, authorityRepository, jwtTokenAdministrator);
     }
 
     @Nested
