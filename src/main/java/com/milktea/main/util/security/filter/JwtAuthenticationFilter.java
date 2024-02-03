@@ -34,8 +34,6 @@ import static com.milktea.main.util.security.jwt.JwtAuthenticationWhiteList.SPEC
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    @Value("${jwt.signing.key}")
-    private final String signingKey;
 
     private final JwtTokenAdministrator jwtTokenAdministrator;
 

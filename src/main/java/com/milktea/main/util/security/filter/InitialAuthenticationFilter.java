@@ -56,7 +56,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = new EmailPasswordAuthentication(email, password);
             Authentication returnAuthentication = manager.authenticate(authentication);
 
-            String jwt = jwtTokenAdministrator.issueToken(email, returnAuthentication);
+            String jwt = jwtTokenAdministrator.issueToken(returnAuthentication);
 
             response.setHeader("Authorization", jwt);
 
