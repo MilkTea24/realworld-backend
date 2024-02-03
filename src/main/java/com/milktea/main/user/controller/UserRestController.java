@@ -9,6 +9,7 @@ import com.milktea.main.user.dto.request.UserRegisterRequest;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,17 +40,19 @@ public class UserRestController {
 
     //API 명세 상 users가 아님 user임 주의!
     @GetMapping("/api/user")
-    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal String email) {
+    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal String email, HttpServletRequest request) {
         UserInfoDTO userDTO = new UserInfoDTO(email);
-        UserInfoResponse response = userService.getCurrentUser(userDTO);
+        String token = request.getHeader("Authentication");
+        UserInfoResponse response = userService.getCurrentUser(userDTO, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     @PutMapping("/api/user")
-    public ResponseEntity<?> updateUserInfo(@AuthenticationPrincipal String email, @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<?> updateUserInfo(@AuthenticationPrincipal String email, @Valid @RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         UserUpdateRequest.UserUpdateDTO userDTO = userUpdateRequest.userUpdateDTO();
-        UserUpdateResponse response = userService.updateUser(email, userDTO);
+        String token = request.getHeader("Authentication");
+        UserUpdateResponse response = userService.updateUser(email, userDTO, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

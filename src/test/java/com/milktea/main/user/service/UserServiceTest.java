@@ -11,6 +11,7 @@ import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
 import com.milktea.main.util.exceptions.ValidationException;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -27,11 +28,16 @@ import static org.mockito.Mockito.when;
 public class UserServiceTest {
     private static User user;
 
+    private static UserService userService;
+
     private static UserRepository userRepository;
 
     private static AuthorityRepository authorityRepository;
 
     private static PasswordEncoder passwordEncoder;
+
+    private static JwtTokenAdministrator jwtTokenAdministrator;
+
 
 
     @BeforeEach
@@ -40,6 +46,7 @@ public class UserServiceTest {
         userRepository = Mockito.mock(UserRepository.class);
         authorityRepository = Mockito.mock(AuthorityRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
+        UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository, jwtTokenAdministrator);
     }
 
     @Nested
@@ -49,7 +56,6 @@ public class UserServiceTest {
         @DisplayName("성공 테스트")
         void register_user_success_test() {
             //given
-            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
             UserRegisterRequest.UserRegisterDTO userRegisterRequest = new UserRegisterRequest.UserRegisterDTO(user);
 
             //when
@@ -66,7 +72,6 @@ public class UserServiceTest {
         @DisplayName("중복된 username 실패 테스트")
         void register_user_duplicate_username_fail_test() {
             //given
-            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
             UserRegisterRequest.UserRegisterDTO userRegisterRequest = new UserRegisterRequest.UserRegisterDTO(user);
 
             //when
@@ -81,7 +86,6 @@ public class UserServiceTest {
         @DisplayName("중복된 email 실패 테스트")
         void register_user_duplicate_email_fail_test() {
             //given
-            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
             UserRegisterRequest.UserRegisterDTO userRegisterRequest = new UserRegisterRequest.UserRegisterDTO(user);
 
             //when
@@ -100,7 +104,6 @@ public class UserServiceTest {
         @DisplayName("성공 테스트")
         void login_user_success_test() {
             //given
-            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
             UserLoginRequest.UserLoginDTO userLoginRequest = new UserLoginRequest.UserLoginDTO(user);
 
             //when
@@ -121,19 +124,17 @@ public class UserServiceTest {
         @DisplayName("성공 테스트")
         void get_user_success_test() {
             //given
-            UserService userService = new UserService(passwordEncoder, userRepository, authorityRepository);
             UserInfoDTO userInfoRequest = new UserInfoDTO(user);
 
             //when
             when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
             when(userRepository.save(any())).thenReturn(user);
-            UserInfoResponse result = userService.getCurrentUser(userInfoRequest);
+            UserInfoResponse result = userService.getCurrentUser(userInfoRequest, "test token");
 
 
             //then
             Assertions.assertEquals("newUser", result.userInfoDTO().username());
         }
     }
-
 
 }

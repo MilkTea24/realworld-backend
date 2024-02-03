@@ -12,8 +12,8 @@ import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
-import com.milktea.main.util.exceptions.ExceptionUtils;
 import com.milktea.main.util.exceptions.ValidationException;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,6 +34,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final AuthorityRepository authorityRepository;
+
+    private final JwtTokenAdministrator jwtTokenAdministrator;
 
     //Bean으로 등록된 passwordEncoder로 인코딩 과정을 거치고 userRepository에 생성한 User를 보냄
     @Transactional
@@ -79,7 +81,7 @@ public class UserService {
         return new UserLoginResponse(new UserLoginResponse.UserLoginDTO(findUser.get()));
     }
 
-    public UserInfoResponse getCurrentUser(UserInfoDTO userRequest) {
+    public UserInfoResponse getCurrentUser(UserInfoDTO userRequest, String token) {
         String currentUserEmail = userRequest.email();
 
         Optional<User> findUser = userRepository.findByEmail(currentUserEmail);
@@ -87,14 +89,14 @@ public class UserService {
         //인증을 한 회원이 데이터베이스에 유저가 없다면(이런 경우는 없을 것이라 예상되지만 혹시 몰라 예외 처리)
         if (findUser.isEmpty()) throwUserNotFoundException();
 
-        return new UserInfoResponse(new UserInfoResponse.UserInfoDTO(findUser.get()));
+        return new UserInfoResponse(new UserInfoResponse.UserInfoDTO(findUser.get(), token));
     }
 
     //중요!!!!! 현재 방식은 기존의 정보를 null로 변경할 수 없다. null로 들어오면 변경하지 않는 필드로 간주하기 때문
     //만약에 email을 업데이트하게 되면 토큰을 다시 발급받아야 할 것 같은데..?
     //response로 새로운 token을 반환해 주어야 할 것 같다.
     @Transactional
-    public UserUpdateResponse updateUser(String loginEmail, UserUpdateRequest.UserUpdateDTO userRequest) {
+    public UserUpdateResponse updateUser(String loginEmail, UserUpdateRequest.UserUpdateDTO userRequest, String token) {
         //수정하려는 email이 이미 가입된 email인지 확인
         if (Objects.nonNull(userRequest.email())) checkDuplicateUsername(userRequest.username());
 
@@ -102,12 +104,12 @@ public class UserService {
         if (Objects.nonNull(userRequest.username())) checkDuplicateEmail(userRequest.email());
 
         Optional<User> findUserOp = userRepository.findByEmail(loginEmail);
-
         if (findUserOp.isEmpty()) throwUserNotFoundException();
-
         User findUser = findUserOp.get();
 
         findUser.updateUser(userRequest);
+
+        if (Objects.nonNull(userRequest.email())) token = jwtTokenAdministrator.updateToken(userRequest.email(), token);
 
         return new UserUpdateResponse(new UserUpdateResponse.UserUpdateDTO(findUser));
     }

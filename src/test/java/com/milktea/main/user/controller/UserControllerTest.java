@@ -287,10 +287,10 @@ public class UserControllerTest {
 
             //출력할 객체 생성
             User user = UserMother.user().build();
-            UserInfoResponse response = new UserInfoResponse(new UserInfoResponse.UserInfoDTO(user));
+            UserInfoResponse response = new UserInfoResponse(new UserInfoResponse.UserInfoDTO(user, "test token"));
 
             //mock 정의
-            when(mockUserService.getCurrentUser(any())).thenReturn(response);
+            when(mockUserService.getCurrentUser(any(), any())).thenReturn(response);
 
             //when
             final ResultActions actions = mockMvc.perform(
