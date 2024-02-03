@@ -2,6 +2,7 @@ package com.milktea.main.util.security.filter;
 
 
 import com.milktea.main.util.security.EmailPasswordAuthentication;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -26,8 +27,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.milktea.main.util.security.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
-import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
+import static com.milktea.main.util.security.jwt.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
+import static com.milktea.main.util.security.jwt.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
 
 @Component
 @Slf4j
@@ -36,27 +37,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.signing.key}")
     private final String signingKey;
 
+    private final JwtTokenAdministrator jwtTokenAdministrator;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwt = request.getHeader("Authorization");
-        String parsingJwt = jwt.replaceFirst("Token ", "");
 
-        //서명된 Jwt를 풀기 위한 Secret Key 생성
-        SecretKey key = Keys.hmacShaKeyFor(
-                signingKey.getBytes(StandardCharsets.UTF_8)
-        );
-
-        //JWT에서 정보 얻기
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key) //서명 검증을 위한 SecretKey 입력
-                .build()
-                .parseClaimsJws(parsingJwt) //토큰이 유효한지 검사. 유효하지 않으면 여러 종류 예외 발생
-                .getBody();
+        Claims claims = jwtTokenAdministrator.verifyToken(jwt);
 
         String email = String.valueOf(claims.get("email"));
 
         //하나의 String으로 되어있는 Claims.get("authorities")에 "AUTHORITY1, AUTHORITY2"를 분리하여 List<? extends GrantedAuthority>로 만든다.
-        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(InitialAuthenticationFilter.AUTHORITY_DELIMITER))
+        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(JwtTokenAdministrator.authorityDelimiter()))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 

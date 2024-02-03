@@ -1,4 +1,4 @@
-package com.milktea.main.util.security;
+package com.milktea.main.util.security.jwt;
 
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
