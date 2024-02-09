@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 
-//당장은 사용하지 않고 잠시 보류
 @Getter
 @AllArgsConstructor
 public class ValidationException extends RuntimeException {

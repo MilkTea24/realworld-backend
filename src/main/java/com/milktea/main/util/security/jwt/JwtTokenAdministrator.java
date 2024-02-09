@@ -6,20 +6,18 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.ServletException;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -38,6 +36,9 @@ public class JwtTokenAdministrator {
 
     private final JwtTokenBlackListRepository jwtTokenBlackListRepository;
 
+    private final Clock clock;
+
+
     public static String authorityDelimiter() {
         return AUTHORITY_DELIMITER;
     }
@@ -51,7 +52,7 @@ public class JwtTokenAdministrator {
         log.debug("AuthenticationManager가 반환한 authorities - {}", returnAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).reduce((a, b) -> a + b));
 
         //만료 기한 추가
-        Instant expiredInstant = Instant.now().plusSeconds(1800L);
+        Instant expiredInstant = Instant.now(clock).plusSeconds(1800L);
         Claims claims = Jwts.claims()
                 .setExpiration(Date.from(expiredInstant));
 
@@ -73,10 +74,11 @@ public class JwtTokenAdministrator {
                 .signWith(key) //서명 키는 실제로 사용자별로 다른 키를 사용해야 한다.
                 .compact();
 
-        return jwt;
+        return "Token " + jwt;
     }
 
     public Claims verifyToken(String jwt) throws ServletException {
+        log.debug("현재 시간 -{}", clock);
         String parsingJwt = jwt.replaceFirst("Token ", "");
 
         //서명된 Jwt를 풀기 위한 Secret Key 생성
@@ -87,7 +89,7 @@ public class JwtTokenAdministrator {
         Claims claims = parseJwtToken(key, parsingJwt);
 
         //만약 블랙리스트에 포함된 토큰이라면 예외 발생시키기
-        String email = claims.get("Email", String.class);
+        String email = claims.get("email", String.class);
         Optional<JwtTokenBlackList> blackListTokenOp = jwtTokenBlackListRepository.findById(email);
         //블랙리스트에 없으면 검증 완료
         if (blackListTokenOp.isEmpty()) return claims;
@@ -98,9 +100,8 @@ public class JwtTokenAdministrator {
         else return claims;
     }
 
-    public String updateToken(String email, String oldJwt) {
+    public String updateToken(Authentication auth, String newEmail, String oldJwt) {
         //이메일 변경 시 기존 토큰 만료시키기
-        EmailPasswordAuthentication auth = (EmailPasswordAuthentication) SecurityContextHolder.getContext().getAuthentication();
         String oldEmail = auth.getName();
 
         String parsingOldJwt = oldJwt.replaceFirst("Token ", "");
@@ -108,7 +109,7 @@ public class JwtTokenAdministrator {
         jwtTokenBlackListRepository.save(new JwtTokenBlackList(oldEmail, parsingOldJwt));
 
         //새 토큰 발급
-        return issueToken(new EmailPasswordAuthentication(email, null, auth.getAuthorities()));
+        return issueToken(new EmailPasswordAuthentication(newEmail, null, auth.getAuthorities()));
     }
 
     //이메일을 너무 자주 발급받아 블랙리스트에 토큰이 계속 갱신되는 것을 막기 위해 이메일 변경 기간을 둠
@@ -124,9 +125,12 @@ public class JwtTokenAdministrator {
         try {
             claims = Jwts.parserBuilder()
                     .setSigningKey(key) //서명 검증을 위한 SecretKey 입력
+                    .setClock(() -> Date.from(clock.instant()))
                     .build()
                     .parseClaimsJws(parsingJwt) //토큰이 유효한지 검사. 유효하지 않으면 여러 종류 예외 발생
                     .getBody();
+
+
         }
         catch (ExpiredJwtException e) {
             log.warn("Jwt token이 만료되어 접근할 수 없음!");

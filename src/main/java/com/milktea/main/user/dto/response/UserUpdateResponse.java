@@ -12,8 +12,8 @@ public record UserUpdateResponse(@JsonProperty("user") UserUpdateDTO userUpdateD
             String username,
             String bio,
             String image) {
-        public UserUpdateDTO(User user){
-            this(user.getEmail(), null, user.getUsername(), user.getBio(), user.getImage());
+        public UserUpdateDTO(User user, String token){
+            this(user.getEmail(), token, user.getUsername(), user.getBio(), user.getImage());
             log.debug("UserUpdateDTO 생성 - username = {}, email = {}", username, email);
         }
     }

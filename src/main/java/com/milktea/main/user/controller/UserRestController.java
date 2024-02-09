@@ -9,12 +9,14 @@ import com.milktea.main.user.dto.request.UserRegisterRequest;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.service.UserService;
+import com.milktea.main.util.security.EmailPasswordAuthentication;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -49,10 +51,12 @@ public class UserRestController {
 
 
     @PutMapping("/api/user")
-    public ResponseEntity<?> updateUserInfo(@AuthenticationPrincipal String email, @Valid @RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+    public ResponseEntity<?> updateUserInfo(@Valid @RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         UserUpdateRequest.UserUpdateDTO userDTO = userUpdateRequest.userUpdateDTO();
         String token = request.getHeader("Authentication");
-        UserUpdateResponse response = userService.updateUser(email, userDTO, token);
+        //토큰을 새로 발급하기 위해서는 email 뿐만 아니라 authority도 필요해서 @AuthenticationPrincipal 안쓰고 직접 가져왔다.
+        EmailPasswordAuthentication auth = (EmailPasswordAuthentication) SecurityContextHolder.getContext().getAuthentication();
+        UserUpdateResponse response = userService.updateUser(auth, userDTO, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
