@@ -4,6 +4,7 @@ package com.milktea.main.util.security.filter;
 import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
+import com.milktea.main.util.security.EmailPasswordAuthentication;
 import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -86,7 +86,7 @@ public class InitialAuthenticationFilterTest {
                     .map(SimpleGrantedAuthority::new)
                     .toList();
 
-            return new UsernamePasswordAuthenticationToken(
+            return new EmailPasswordAuthentication(
                     email,
                     password,
                     authorities);
@@ -95,11 +95,13 @@ public class InitialAuthenticationFilterTest {
 
     private static class MockJwtTokenAdministrator extends JwtTokenAdministrator {
         public MockJwtTokenAdministrator() {
-            super(null, null);
+            super(null, null, null);
         }
 
         @Override
         public String issueToken(Authentication returnAuthentication) {
+
+            log.debug(returnAuthentication.getName());
             return "test success token";
         }
     }

@@ -23,7 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.IOException;
-import io.jsonwebtoken.security.SignatureException;
 import java.util.Collection;
 
 @Slf4j
@@ -84,7 +83,7 @@ public class JwtAuthenticationFilterTest {
 
     private static class MockJwtTokenAdministrator extends JwtTokenAdministrator {
         public MockJwtTokenAdministrator() {
-            super(null, null);
+            super(null, null, null);
         }
 
         @Override
