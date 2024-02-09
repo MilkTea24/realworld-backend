@@ -16,6 +16,7 @@ import com.milktea.main.util.exceptions.ValidationException;
 import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,22 +97,22 @@ public class UserService {
     //만약에 email을 업데이트하게 되면 토큰을 다시 발급받아야 할 것 같은데..?
     //response로 새로운 token을 반환해 주어야 할 것 같다.
     @Transactional
-    public UserUpdateResponse updateUser(String loginEmail, UserUpdateRequest.UserUpdateDTO userRequest, String token) {
+    public UserUpdateResponse updateUser(Authentication auth, UserUpdateRequest.UserUpdateDTO userRequest, String token) {
         //수정하려는 email이 이미 가입된 email인지 확인
         if (Objects.nonNull(userRequest.email())) checkDuplicateUsername(userRequest.username());
 
         //수정하려는 username이 이미 가입된 username인지 확인
         if (Objects.nonNull(userRequest.username())) checkDuplicateEmail(userRequest.email());
 
-        Optional<User> findUserOp = userRepository.findByEmail(loginEmail);
+        Optional<User> findUserOp = userRepository.findByEmail(auth.getName());
         if (findUserOp.isEmpty()) throwUserNotFoundException();
         User findUser = findUserOp.get();
 
         findUser.updateUser(userRequest);
+        
+        String newToken = jwtTokenAdministrator.updateToken(auth, userRequest.email(), token);
 
-        if (Objects.nonNull(userRequest.email())) token = jwtTokenAdministrator.updateToken(userRequest.email(), token);
-
-        return new UserUpdateResponse(new UserUpdateResponse.UserUpdateDTO(findUser));
+        return new UserUpdateResponse(new UserUpdateResponse.UserUpdateDTO(findUser, newToken));
     }
 
     private void throwUserNotFoundException() {
