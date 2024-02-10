@@ -1,6 +1,7 @@
 package com.milktea.main.util.security.jwt;
 
 import com.milktea.main.util.exceptions.ExceptionUtils;
+import com.milktea.main.util.exceptions.JwtAuthenticationException;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -11,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -119,7 +120,7 @@ public class JwtTokenAdministrator {
         return true;
     }
 
-    private Claims parseJwtToken(SecretKey key, String parsingJwt) throws ServletException {
+    private Claims parseJwtToken(SecretKey key, String parsingJwt) {
         //JWT에서 정보 얻기(모든 예외는 여기서 로그만 남기고 ExceptionHandlingFilter가 UNAUTHORIZED로 처리할 것)
         Claims claims;
         try {
@@ -135,22 +136,22 @@ public class JwtTokenAdministrator {
         catch (ExpiredJwtException e) {
             log.warn("Jwt token이 만료되어 접근할 수 없음!");
             if (log.isDebugEnabled()) log.debug(ExceptionUtils.getStackTrace(e));
-            throw new ServletException("로그인 시간이 만료되었습니다. 다시 로그인해주세요.");
+            throw new JwtAuthenticationException("로그인 시간이 만료되었습니다. 다시 로그인해주세요.", e);
         }
         catch (SignatureException e) {
             log.warn("유효하지 않은 인증으로 접근 시도!");
             if (log.isDebugEnabled()) log.debug(ExceptionUtils.getStackTrace(e));
-            throw new ServletException("인증에 실패하였습니다. 다시 로그인해주세요.");
+            throw new JwtAuthenticationException("인증에 실패하였습니다. 다시 로그인해주세요.", e);
         }
         catch (MalformedJwtException | UnsupportedJwtException e) {
             log.warn("잘못된 jwt 형식 받음!");
             if (log.isDebugEnabled()) log.debug(ExceptionUtils.getStackTrace(e));
-            throw new ServletException("인증에 실패하였습니다. 다시 로그인해주세요.");
+            throw new JwtAuthenticationException("인증에 실패하였습니다. 다시 로그인해주세요.", e);
         }
         catch (Exception e) {
             log.warn("jwt 파싱 과정에서 예외 발생!");
             if (log.isDebugEnabled()) log.debug(ExceptionUtils.getStackTrace(e));
-            throw new ServletException("인증에 실패하였습니다. 다시 로그인해주세요.");
+            throw new JwtAuthenticationException("인증에 실패하였습니다. 다시 로그인해주세요.", e);
         }
 
         return claims;
