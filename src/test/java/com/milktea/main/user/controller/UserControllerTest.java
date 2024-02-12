@@ -1,9 +1,12 @@
 package com.milktea.main.user.controller;
 
+import com.milktea.main.factory.MockSecurityContextFactory;
 import com.milktea.main.factory.UserMother;
+import com.milktea.main.factory.WithCustomUser;
 import com.milktea.main.user.dto.response.UserInfoResponse;
 import com.milktea.main.user.dto.response.UserLoginResponse;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
+import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.service.UserService;
 import com.milktea.main.util.exceptions.GlobalExceptionHandler;
@@ -21,6 +24,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -30,6 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(value = UserRestController.class,
@@ -282,7 +288,8 @@ public class UserControllerTest {
         private static final String GET_USER_URL = "/api/user";
         @Test
         @DisplayName("성공 테스트")
-        void login_success_test() throws Exception {
+        @WithCustomUser
+        void get_user_success_test() throws Exception {
             //given
 
             //출력할 객체 생성
@@ -294,7 +301,8 @@ public class UserControllerTest {
 
             //when
             final ResultActions actions = mockMvc.perform(
-                    get(GET_USER_URL));
+                    get(GET_USER_URL)
+                            .header("Authentication", "test token"));
 
 
             //then
@@ -303,6 +311,50 @@ public class UserControllerTest {
             actions
                     .andExpect(jsonPath("user.username").value("newUser"))
                     .andExpect(jsonPath("user.email").value("newUser@naver.com"));
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 업데이트하기(PUT /api/user)")
+    class update {
+        private static final String UPDATE_USER_URL = "/api/user";
+
+        @Test
+        @DisplayName("성공 테스트")
+        @WithCustomUser
+        void update_success_test() throws Exception {
+            //given
+            String jsonString = """
+                        {
+                          "user":{
+                            "email": "newUser2@naver.com",
+                            "bio": "update bio"
+                          }
+                        }
+                    """;
+
+            //출력할 객체 생성
+            User user = UserMother.user()
+                    .withBio("update bio")
+                    .withEmail("newUser2@naver.com")
+                    .build();
+            UserUpdateResponse response = new UserUpdateResponse(new UserUpdateResponse.UserUpdateDTO(user, "new token"));
+
+            //mock 정의
+            when(mockUserService.updateUser(any(), any(), any())).thenReturn(response);
+
+            //when
+            final ResultActions actions = mockMvc.perform(
+                    put(UPDATE_USER_URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .characterEncoding("UTF-8")
+                            .content(jsonString));
+
+
+            actions
+                    .andExpect(jsonPath("user.bio").value("update bio"))
+                    .andExpect(jsonPath("user.email").value("newUser2@naver.com"));
         }
     }
 }

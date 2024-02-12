@@ -9,16 +9,19 @@ import com.milktea.main.user.dto.request.UserRegisterRequest;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.service.UserService;
+import com.milktea.main.util.security.BoardUserDetails;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserRestController {
@@ -41,8 +44,10 @@ public class UserRestController {
     }
 
     //API 명세 상 users가 아님 user임 주의!
+    //principal에 String 값을 넣어 AuthenticationPrincipal 사용이 까다로움
     @GetMapping("/api/user")
-    public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal String email, HttpServletRequest request) {
+    public ResponseEntity<?> getUserInfo(/*@AuthenticationPrincipal String email)),*/ HttpServletRequest request) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserInfoDTO userDTO = new UserInfoDTO(email);
         String token = request.getHeader("Authentication");
         UserInfoResponse response = userService.getCurrentUser(userDTO, token);
