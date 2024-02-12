@@ -1,6 +1,7 @@
 package com.milktea.main.util.security.jwt;
 
 import com.milktea.main.factory.UserMother;
+import com.milktea.main.util.exceptions.JwtAuthenticationException;
 import com.milktea.main.util.security.BoardUserDetails;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import io.jsonwebtoken.Claims;
@@ -107,7 +108,7 @@ public class JwtTokenAdministratorTest {
 
             //when
             //then
-            Assertions.assertThrows(ServletException.class, () -> jwtTokenAdministrator.verifyToken(token));
+            Assertions.assertThrows(JwtAuthenticationException.class, () -> jwtTokenAdministrator.verifyToken(token));
         }
 
         @Test
@@ -123,7 +124,7 @@ public class JwtTokenAdministratorTest {
             Mockito.when(clock.instant()).thenReturn(Instant.parse("2024-01-01T10:00:00Z"));
 
             //then
-            Assertions.assertThrows(ServletException.class, () -> jwtTokenAdministrator.verifyToken(token));
+            Assertions.assertThrows(JwtAuthenticationException.class, () -> jwtTokenAdministrator.verifyToken(token));
         }
 
         @Test
@@ -136,7 +137,7 @@ public class JwtTokenAdministratorTest {
             Mockito.when(clock.instant()).thenReturn(Instant.parse("2024-01-01T10:00:00Z"));
 
             //then
-            Assertions.assertThrows(ServletException.class, () -> jwtTokenAdministrator.verifyToken(token));
+            Assertions.assertThrows(JwtAuthenticationException.class, () -> jwtTokenAdministrator.verifyToken(token));
         }
 
         @Test

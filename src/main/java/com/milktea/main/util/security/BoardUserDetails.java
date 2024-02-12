@@ -28,7 +28,6 @@ public class BoardUserDetails implements UserDetails {
     //이메일 기반 인증이므로 email 반환
     @Override
     public String getUsername() {
-
         return user.getEmail();
     }
 
