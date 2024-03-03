@@ -1,20 +1,27 @@
 package com.milktea.main.user.service;
 
 import com.milktea.main.factory.UserMother;
+import com.milktea.main.factory.WithCustomUser;
 import com.milktea.main.user.dto.request.UserInfoDTO;
 import com.milktea.main.user.dto.request.UserLoginRequest;
 import com.milktea.main.user.dto.request.UserRegisterRequest;
+import com.milktea.main.user.dto.request.UserUpdateRequest;
 import com.milktea.main.user.dto.response.UserInfoResponse;
 import com.milktea.main.user.dto.response.UserLoginResponse;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
+import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.entity.User;
 import com.milktea.main.user.repository.AuthorityRepository;
 import com.milktea.main.user.repository.UserRepository;
 import com.milktea.main.util.exceptions.ValidationException;
+import com.milktea.main.util.security.EmailPasswordAuthentication;
 import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -45,6 +52,7 @@ public class UserServiceTest {
         user = UserMother.user().build();
         userRepository = Mockito.mock(UserRepository.class);
         authorityRepository = Mockito.mock(AuthorityRepository.class);
+        jwtTokenAdministrator = Mockito.mock(JwtTokenAdministrator.class);
         passwordEncoder = new BCryptPasswordEncoder();
         userService = new UserService(passwordEncoder, userRepository, authorityRepository, jwtTokenAdministrator);
     }
@@ -134,6 +142,89 @@ public class UserServiceTest {
 
             //then
             Assertions.assertEquals("newUser", result.userInfoDTO().username());
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 정보 업데이트하기(PUT /api/user)")
+    class Update {
+        private static Authentication auth;
+        @BeforeEach
+        void setup() {
+            auth = new EmailPasswordAuthentication(
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getAuthorities().stream()
+                            .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                            .toList()
+            );
+        }
+
+        @Test
+        @DisplayName("성공 테스트")
+        void update_user_success_test() {
+            //given
+            UserUpdateRequest.UserUpdateDTO userUpdateRequest = new UserUpdateRequest.UserUpdateDTO(null, "newUser2@naver.com", "update bio", null, null);
+
+
+            //when
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(eq("newUser2@naver.com"))).thenReturn(Optional.empty());
+            when(jwtTokenAdministrator.updateToken(any(), any(), any())).thenReturn("new Token");
+            UserUpdateResponse result = userService.updateUser(auth, userUpdateRequest, "old Token");
+
+            //then
+            Assertions.assertEquals("newUser2@naver.com", result.userUpdateDTO().email());
+            Assertions.assertEquals("update bio", result.userUpdateDTO().bio());
+            Assertions.assertEquals("new Token", result.userUpdateDTO().token());
+        }
+
+        @Test
+        @DisplayName("중복된 이메일 실패 테스트")
+        void update_user_duplicate_email_fail_test() {
+            //given
+            UserUpdateRequest.UserUpdateDTO userUpdateRequest = new UserUpdateRequest.UserUpdateDTO(null, "newUser2@naver.com", "update bio", null, null);
+            Authentication auth = new EmailPasswordAuthentication(
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getAuthorities().stream()
+                            .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                            .toList()
+            );
+
+            //when
+            //then
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.findByEmail(eq("newUser2@naver.com"))).thenReturn(Optional.of(UserMother.user()
+                    .withEmail("newUser2@naver.com")
+                    .build()));
+            when(jwtTokenAdministrator.updateToken(any(), any(), any())).thenReturn("new Token");
+
+            Assertions.assertThrows(ValidationException.class, () -> userService.updateUser(auth, userUpdateRequest, "old Token"));
+        }
+
+        @Test
+        @DisplayName("중복된 username 실패 테스트")
+        void update_user_duplicate_username_fail_test() {
+            //given
+            UserUpdateRequest.UserUpdateDTO userUpdateRequest = new UserUpdateRequest.UserUpdateDTO("newUser2", null, "update bio", null, null);
+            Authentication auth = new EmailPasswordAuthentication(
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getAuthorities().stream()
+                            .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                            .toList()
+            );
+
+            //when
+            //then
+            when(userRepository.findByEmail(eq("newUser@naver.com"))).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername(eq("newUser2"))).thenReturn(Optional.of(UserMother.user()
+                    .withUsername("newUser2")
+                    .build()));
+            when(jwtTokenAdministrator.updateToken(any(), any(), any())).thenReturn("new Token");
+
+            Assertions.assertThrows(ValidationException.class, () -> userService.updateUser(auth, userUpdateRequest, "old Token"));
         }
     }
 

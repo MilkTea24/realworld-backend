@@ -83,7 +83,7 @@ public class User extends TimestampEntity {
                 //클라이언트에서 보낸 DTO 필드 값이 null이면 수정하는 필드가 아니므로 패스
                 if (Objects.isNull(updateValue)) continue;
 
-                Field field = searchUpdateField(fields, getter);
+                Field field = searchUpdateField(getter);
                 log.debug("업데이트 전 필드 값 - {}", field.get(this));
                 //Record의 getter로 얻은 값을 entity의 field 값으로 변경
                 field.set(this, updateValue);
@@ -95,19 +95,14 @@ public class User extends TimestampEntity {
         }
     }
 
-    private Field searchUpdateField(Field[] fields, Method getter) {
-        for (Field f : fields) {
-            //조건 1 : 필드 이름과 getter 이름 같아야 함
-            if (!f.getName().equals(getter.getName())) continue;
+    private Field searchUpdateField(Method getter) throws Exception {
+        Field field = this.getClass().getDeclaredField(getter.getName());
 
-            //조건 2 : 필드의 타입은 getter와 타입이 같거나 부모타입이어야 한다.
-            if (!getter.getReturnType().isAssignableFrom(f.getType())) continue;
-
-            return f;
+        if (!getter.getReturnType().isAssignableFrom(field.getType())) {
+            log.error("DTO의 타입과 엔티티의 타입이 다름!");
+            throw new RuntimeException("User에서 update할 필드를 찾지 못했습니다.");
         }
 
-        log.error("클라이언트가 전송한 Update할 필드를 엔티티에서 찾을 수 없음!");
-        if (log.isDebugEnabled()) log.debug("Update할 수 없는 DTO 필드 - {}", getter.getName());
-        throw new RuntimeException("User에서 update할 필드를 찾지 못했습니다.");
+        return field;
     }
 }

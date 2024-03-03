@@ -99,10 +99,10 @@ public class UserService {
     @Transactional
     public UserUpdateResponse updateUser(Authentication auth, UserUpdateRequest.UserUpdateDTO userRequest, String token) {
         //수정하려는 email이 이미 가입된 email인지 확인
-        if (Objects.nonNull(userRequest.email())) checkDuplicateUsername(userRequest.username());
+        if (Objects.nonNull(userRequest.email())) checkDuplicateEmail(userRequest.email());
 
         //수정하려는 username이 이미 가입된 username인지 확인
-        if (Objects.nonNull(userRequest.username())) checkDuplicateEmail(userRequest.email());
+        if (Objects.nonNull(userRequest.username())) checkDuplicateUsername(userRequest.username());
 
         Optional<User> findUserOp = userRepository.findByEmail(auth.getName());
         if (findUserOp.isEmpty()) throwUserNotFoundException();
