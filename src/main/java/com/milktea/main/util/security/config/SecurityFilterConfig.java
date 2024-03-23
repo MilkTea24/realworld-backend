@@ -14,8 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import static com.milktea.main.util.security.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
-import static com.milktea.main.util.security.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
+import static com.milktea.main.util.security.jwt.JwtAuthenticationWhiteList.ALL_METHOD_WHITELIST;
+import static com.milktea.main.util.security.jwt.JwtAuthenticationWhiteList.SPECIFIC_METHOD_WHITELIST;
 
 @Configuration
 @RequiredArgsConstructor

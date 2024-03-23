@@ -25,10 +25,10 @@ public class BoardUserDetails implements UserDetails {
         return user.getPassword();
     }
 
+    //이메일 기반 인증이므로 email 반환
     @Override
     public String getUsername() {
-
-        return user.getUsername();
+        return user.getEmail();
     }
 
     @Override

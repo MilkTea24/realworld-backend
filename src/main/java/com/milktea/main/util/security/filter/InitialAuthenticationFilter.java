@@ -1,47 +1,37 @@
 package com.milktea.main.util.security.filter;
 
 import com.google.gson.Gson;
-import com.milktea.main.user.dto.UserLoginRequest;
-import com.milktea.main.util.exceptions.ErrorResponse;
+import com.milktea.main.user.dto.request.UserLoginRequest;
 import com.milktea.main.util.exceptions.ExceptionUtils;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
 import com.milktea.main.util.security.LoginHttpServletRequestWrapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.time.Instant;
 import java.util.Objects;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class InitialAuthenticationFilter extends OncePerRequestFilter {
-    public static final String AUTHORITY_DELIMITER = ",";
 
     private final AuthenticationManager manager;
 
-    @Value("${jwt.signing.key}")
-    private final String signingKey;
+    private final JwtTokenAdministrator jwtTokenAdministrator;
+
 
     //"/api/users/login"의 요청을 이 필터가 가로챈다.
     //AuthenticationManager가 Authentication을 검증한다.
@@ -67,31 +57,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = new EmailPasswordAuthentication(email, password);
             Authentication returnAuthentication = manager.authenticate(authentication);
 
-            SecretKey key = Keys.hmacShaKeyFor(
-                signingKey.getBytes(StandardCharsets.UTF_8)
-        );
-
-            log.debug("AuthenticationManager가 반환한 username - {}", returnAuthentication.getName());
-            log.debug("AuthenticationManager가 반환한 authorities - {}", returnAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).reduce((a, b) -> a + b));
-
-            Claims claims = Jwts.claims()
-                .setIssuedAt(new Date());
-
-            claims.put("email", email);
-            Collection<? extends GrantedAuthority> grantedAuthorities = returnAuthentication.getAuthorities();
-
-            claims.put("authorities",
-                String.join(AUTHORITY_DELIMITER,
-                grantedAuthorities.stream()
-                        .map(GrantedAuthority::getAuthority)
-                        .toList()
-                )
-        );
-
-            String jwt = Jwts.builder()
-                .setClaims(claims) //JWT와 관련된 정보 입력
-                .signWith(key) //서명 키는 실제로 사용자별로 다른 키를 사용해야 한다.
-                .compact();
+            String jwt = jwtTokenAdministrator.issueToken(returnAuthentication);
 
             response.setHeader("Authorization", jwt);
 

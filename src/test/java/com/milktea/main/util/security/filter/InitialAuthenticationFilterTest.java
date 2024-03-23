@@ -4,6 +4,8 @@ package com.milktea.main.util.security.filter;
 import com.milktea.main.factory.UserMother;
 import com.milktea.main.user.entity.Authority;
 import com.milktea.main.user.entity.User;
+import com.milktea.main.util.security.EmailPasswordAuthentication;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +17,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,7 +35,6 @@ public class InitialAuthenticationFilterTest {
 
     //Mock AuthenticationManager
     private static MockAuthenticationManager manager;
-    private static final String TEST_SIGNING_KEY = "adsfasfasfasdfasdfasfasdfasfasdfasdfasfdasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasfd";
 
     @BeforeEach
     void setup() {
@@ -50,7 +50,7 @@ public class InitialAuthenticationFilterTest {
     @DisplayName("email과 password가 일치하면 jwt 토큰을 반환한다")
     void correct_username_password_test() throws ServletException, IOException {
         //given
-        InitialAuthenticationFilter initialAuthenticationFilter = new InitialAuthenticationFilter(manager, TEST_SIGNING_KEY);
+        InitialAuthenticationFilter initialAuthenticationFilter = new InitialAuthenticationFilter(manager, new MockJwtTokenAdministrator());
         request.addHeader("content-type", "application/json");
         request.setContentType("application/json");
         request.setContent("""
@@ -86,10 +86,23 @@ public class InitialAuthenticationFilterTest {
                     .map(SimpleGrantedAuthority::new)
                     .toList();
 
-            return new UsernamePasswordAuthenticationToken(
+            return new EmailPasswordAuthentication(
                     email,
                     password,
                     authorities);
+        }
+    }
+
+    private static class MockJwtTokenAdministrator extends JwtTokenAdministrator {
+        public MockJwtTokenAdministrator() {
+            super(null, null, null);
+        }
+
+        @Override
+        public String issueToken(Authentication returnAuthentication) {
+
+            log.debug(returnAuthentication.getName());
+            return "test success token";
         }
     }
 }

@@ -37,6 +37,21 @@ public class UserMother {
             return this;
         }
 
+        public UserBuilder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder withUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public UserBuilder withBio(String bio) {
+            this.bio = bio;
+            return this;
+        }
+
         public User build() {
             User returnUser = new User(
                     email,
