@@ -30,7 +30,7 @@ import java.util.Optional;
 public class JwtTokenAdministrator {
     private static final long TOKEN_EXPIRATION_SECONDS = 3600L;
 
-    private static final String AUTHORITY_DELIMITER = ",";
+    public static final String AUTHORITY_DELIMITER = ",";
 
     @Value("${jwt.signing.key}")
     private final String signingKey;
@@ -38,11 +38,6 @@ public class JwtTokenAdministrator {
     private final JwtTokenBlackListRepository jwtTokenBlackListRepository;
 
     private final Clock clock;
-
-
-    public static String authorityDelimiter() {
-        return AUTHORITY_DELIMITER;
-    }
 
     public String issueToken(Authentication returnAuthentication){
         SecretKey key = Keys.hmacShaKeyFor(

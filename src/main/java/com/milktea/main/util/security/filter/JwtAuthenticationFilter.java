@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String email = String.valueOf(claims.get("email"));
 
         //하나의 String으로 되어있는 Claims.get("authorities")에 "AUTHORITY1, AUTHORITY2"를 분리하여 List<? extends GrantedAuthority>로 만든다.
-        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(JwtTokenAdministrator.authorityDelimiter()))
+        List<? extends GrantedAuthority> authorities = Arrays.stream(((String)claims.get("authorities")).split(JwtTokenAdministrator.AUTHORITY_DELIMITER))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
