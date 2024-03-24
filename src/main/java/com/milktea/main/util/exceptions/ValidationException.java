@@ -14,9 +14,10 @@ public class ValidationException extends RuntimeException {
     private final HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 
     public enum ErrorType {
-            INVALID_EMAIL,
-            DUPLICATE_USERNAME,
-            INVALID_PASSWORD,
-            DUPLICATE_EMAIL
+        NOT_FOUND_USERNAME,
+        INVALID_EMAIL,
+        DUPLICATE_USERNAME,
+        INVALID_PASSWORD,
+        DUPLICATE_EMAIL
     }
 }
