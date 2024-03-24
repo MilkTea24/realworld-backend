@@ -32,6 +32,8 @@ public class JwtTokenAdministrator {
 
     public static final String AUTHORITY_DELIMITER = ",";
 
+    public static final String TOKEN_HEADER_NAME = "Authorization";
+
     @Value("${jwt.signing.key}")
     private final String signingKey;
 
@@ -73,7 +75,7 @@ public class JwtTokenAdministrator {
         return "Token " + jwt;
     }
 
-    public Claims verifyToken(String jwt) throws ServletException {
+    public Claims verifyToken(String jwt) {
         log.debug("현재 시간 -{}", clock);
         String parsingJwt = jwt.replaceFirst("Token ", "");
 

@@ -92,7 +92,7 @@ public class JwtAuthenticationFilterTest {
         }
 
         @Override
-        public Claims verifyToken(String jwt) throws ServletException {
+        public Claims verifyToken(String jwt) {
             Claims claims = new DefaultClaims();
             claims.put("email", "newUser@naver.com");
             claims.put("authorities", "USER");

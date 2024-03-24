@@ -117,7 +117,7 @@ public class UserService {
 
     private void throwUserNotFoundException() {
         log.error("인증을 통과한 유저의 정보를 데이터베이스에서 찾을 수 없습니다. 즉시 원인을 파악해야 합니다.");
-        throw new UsernameNotFoundException("사용자 정보를 찾는 중 문제가 발생하였습니다.");
+        throw new ValidationException(ValidationException.ErrorType.NOT_FOUND_USERNAME, "username", "해당하는 username을 찾을 수 없습니다.");
     }
 
     private void checkDuplicateUsername(String registerUsername) {

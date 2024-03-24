@@ -9,15 +9,14 @@ import com.milktea.main.user.dto.request.UserRegisterRequest;
 import com.milktea.main.user.dto.response.UserRegisterResponse;
 import com.milktea.main.user.dto.response.UserUpdateResponse;
 import com.milktea.main.user.service.UserService;
-import com.milktea.main.util.security.BoardUserDetails;
 import com.milktea.main.util.security.EmailPasswordAuthentication;
+import com.milktea.main.util.security.jwt.JwtTokenAdministrator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +48,7 @@ public class UserRestController {
     public ResponseEntity<?> getUserInfo(/*@AuthenticationPrincipal String email)),*/ HttpServletRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserInfoDTO userDTO = new UserInfoDTO(email);
-        String token = request.getHeader("Authorization");
+        String token = request.getHeader(JwtTokenAdministrator.TOKEN_HEADER_NAME);
         UserInfoResponse response = userService.getCurrentUser(userDTO, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -58,7 +57,7 @@ public class UserRestController {
     @PutMapping("/api/user")
     public ResponseEntity<?> updateUserInfo(@Valid @RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         UserUpdateRequest.UserUpdateDTO userDTO = userUpdateRequest.userUpdateDTO();
-        String token = request.getHeader("Authorization");
+        String token = request.getHeader(JwtTokenAdministrator.TOKEN_HEADER_NAME);
         //토큰을 새로 발급하기 위해서는 email 뿐만 아니라 authority도 필요해서 @AuthenticationPrincipal 안쓰고 직접 가져왔다.
         EmailPasswordAuthentication auth = (EmailPasswordAuthentication) SecurityContextHolder.getContext().getAuthentication();
         UserUpdateResponse response = userService.updateUser(auth, userDTO, token);
