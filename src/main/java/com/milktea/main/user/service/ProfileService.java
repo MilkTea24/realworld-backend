@@ -25,12 +25,12 @@ public class ProfileService {
     }
 
     private ProfileInfoResponse getProfileWithAnonymousUser(String username) {
-        return new ProfileInfoResponse(
+        return new ProfileInfoResponse(new ProfileInfoResponse.ProfileInfoDTO(
                 userRepository.findByUsername(username).orElseThrow(() ->
                     new ValidationException(ValidationException.ErrorType.NOT_FOUND_USERNAME,
                         "username",
                         "해당하는 username을 가진 사용자를 찾을 수 없습니다.")
-                )
+                ))
         );
     }
 
@@ -50,6 +50,6 @@ public class ProfileService {
         boolean hasFollow = false;
         if (followRepository.findByFollowerAndFollowing(getUser, currentUser).isPresent()) hasFollow = true;
 
-        return new ProfileInfoResponse(getUser, hasFollow);
+        return new ProfileInfoResponse(new ProfileInfoResponse.ProfileInfoDTO(getUser, hasFollow));
     }
 }
